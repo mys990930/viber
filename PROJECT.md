@@ -1,304 +1,38 @@
 # Viber — 바이브 코딩 모듈화 도우미
 
-> 코드베이스의 구조를 실시간으로 시각화하고, 유스케이스 플로우를 추적하고, Git을 똑똑하게 관리하는 데스크톱 앱.
-> **개발자라면 모니터 한쪽에 항상 띄워두는 프로그램.**
+> 코드베이스의 구조를 실시간 시각화하고, Git을 똑똑하게 관리하며, AI 에이전트와 연동되는 데스크톱 앱.
 
----
+## 스택
 
-## 🎯 비전
+| 레이어 | 기술 |
+|--------|------|
+| 데스크톱 | Tauri v2 |
+| 백엔드 | Rust (notify, tree-sitter, git2, petgraph) |
+| 프론트엔드 | React + TypeScript + Vite |
+| 그래프 | Cytoscape.js |
+| 애니메이션 | Framer Motion |
+| 상태 관리 | Zustand |
 
-바이브 코딩의 핵심은 모듈화다.
-Viber는 코드베이스의 **구조와 흐름**을 한눈에 보여주고, AI 에이전트가 스코프를 벗어나지 않도록 **가드레일**을 제공하며, 변경의 **영향 범위**를 즉시 시각화한다.
+## 문서 구조
 
-**예쁘고, 빠르고, 바이럴할 것.**
-
----
-
-## 🧩 기능 상세
-
-### 1. 프로젝트 뷰 — 의존성 시각화
-
-#### 1.1 모듈 단위 그래프
-- 최상위 뷰: 모듈(패키지/디렉토리) 간 의존 관계 그래프
-- Obsidian graph view 스타일, 인터랙티브
-- 간선 hover → 의존 객체(함수, 클래스, 변수) 하이라이트
-- 외부 라이브러리 의존성 표시 (토글 가능)
-
-#### 1.2 모듈 드릴다운
-- 모듈 클릭 → 내부 폴더/파일 별 상세 시각화
-- 모듈 내 플로우 시각화 (함수 호출 체인)
-
-#### 1.3 유스케이스 플로우 트래킹
-- **엔트리 포인트 지정** → 호출 경로를 자동으로 따라가며 하이라이트
-- 점선 애니메이션으로 플로우를 시각적으로 따라감 (속도/스타일 옵션 제공)
-- 갔다가 돌아오는 전체 경로 표시 (요청 → 처리 → 응답)
-- **유스케이스 즐겨찾기 저장** — 자주 보는 플로우를 북마크
-
-#### 1.4 컨텍스트 팩 생성
-- 선택한 모듈/플로우 기반으로 **LLM용 컨텍스트 문서 자동 생성**
-  - `.md` 형태: 구조화된 프로젝트 컨텍스트 문서
-  - 복붙용: 클립보드에 바로 복사 가능한 프롬프트
-- AI 에이전트에게 먹이기 최적화
-
-#### 1.5 변경점 시각화
-- 파일 변경 시 그래프에서 해당 노드/간선 실시간 하이라이트
-- 변경의 영향 범위(ripple) 시각화
-
----
-
-### 2. 뷰 & UX
-
-#### 2.1 레이아웃
-- **자동 정렬** — 깔끔한 초기 배치
-- **Undo/Redo** — 뷰 조작 이력 관리
-- **위치 고정 저장** — 프로젝트 폴더 내 `.viber/layout.json`에 노드 위치 저장
-  - 모듈 단위, 파일 단위 각각 저장
-- **Live floating** — 각 노드가 제자리에서 미세하게 부유 (토글 가능)
-
-#### 2.2 미학
-- **예뻐야 한다.** 개발자 감성에 호소할 것
-- 다크 모드 기본, 세련된 색상 팔레트
-- 부드러운 애니메이션, 자연스러운 물리 시뮬레이션
-- 바이럴 목표: 듀얼 모니터 세팅샷에 Viber가 항상 보이는 것
-  - Claude Code + Viber, Cursor + Viber, CLI + Viber
-
----
-
-### 3. 가드레일
-
-#### 3.1 스코프 경계 설정
-- 그래프 위에 **경계 영역 드로잉** 또는 **노드 선택**으로 스코프 지정
-- 시각적으로 명확한 바운더리 표시
-
-#### 3.2 스코프 밖 변경 감지
-- 프로젝트 내 스코프 밖 파일 변경 발생 시 **즉시 알림**
-- **Revert 버튼** 제공 — 원클릭 복구
-- AI 에이전트가 벗어나지 않도록 실시간 감시
-
-#### 3.3 의존성 점수
-- 현재 프로젝트의 **의존성 건강도 점수** 표시
-- SOLID 원칙 기반 평가
-  - 단일 책임 (모듈 크기/역할 수)
-  - 의존성 역전 (추상화 방향)
-  - 순환 의존성 감지
-  - 결합도/응집도 지표
-
----
-
-### 4. Git 통합
-
-#### 4.1 퀵 커밋 & 푸시
-- UI에서 원클릭 커밋 + 푸시
-- **폴더 단위, 파일 단위 선택 커밋** 가능 (스테이징 세분화)
-
-#### 4.2 AI 커밋 메시지
-- diff 기반 **LLM 자동 커밋 메시지 생성**
-- 사용할 모델 유저 설정 가능 (OpenAI, Claude, 로컬 모델 등)
-
-#### 4.3 Diff Impact 시각화
-- 커밋/브랜치/워킹트리 변경 선택 시 → **영향받는 모듈/플로우 자동 하이라이트**
-- "이 변경이 어디까지 영향을 미치는가"를 그래프 위에서 직관적으로
-
-#### 4.4 Git 히스토리 타임라인
-- 커밋, 브랜치 현황을 **시간축 시각화**
-- 브랜치 분기/병합을 그래프로 표현
-
----
-
-### 5. AI 에이전트 연동 (MCP)
-
-- Rust daemon이 모든 기능을 **tool API**로 노출
-- MCP 서버 내장 → Claude Code, Cursor 등에서 직접 호출
-- 주요 도구:
-  - `get_dependency_graph` — 의존성 그래프 조회
-  - `get_flow` — 엔트리 포인트 기반 플로우 추적
-  - `generate_context_pack` — 컨텍스트 팩 생성
-  - `git_commit` — 커밋 (메시지 자동 생성 옵션)
-  - `git_branch` — 브랜치 생성/전환
-  - `check_guardrail` — 스코프 위반 확인
-  - `get_health_score` — 의존성 점수 조회
-
----
-
-### 6. 다중 언어 지원
-
-- Tree-sitter 기반 AST 파싱
-- 지원 언어: Python, C#, Dart, TypeScript/JavaScript, Rust, Go, ...
-- 언어별 파서 모듈로 분리 → 새 언어는 파서만 추가
-
----
-
-## 🏗️ 아키텍처
-
-```
-┌──────────────────────────────────────────────────┐
-│           React + Cytoscape.js + Framer Motion    │  ← 프론트엔드
-│           (TypeScript, Vite)                      │
-└────────────────────┬─────────────────────────────┘
-                     │ Tauri IPC + WebSocket
-┌────────────────────┴─────────────────────────────┐
-│               Rust Backend (Tauri)                │  ← daemon
-│                                                   │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────────┐  │
-│  │ watcher  │ │  parser  │ │   git engine     │  │
-│  │ (notify) │ │ (tree-   │ │   (git2-rs)      │  │
-│  │          │ │  sitter) │ │                   │  │
-│  └──────────┘ └──────────┘ └──────────────────┘  │
-│  ┌──────────────┐ ┌───────────┐ ┌────────────┐   │
-│  │ graph engine │ │ guardrail │ │ MCP server │   │
-│  │ (petgraph)   │ │           │ │            │   │
-│  └──────────────┘ └───────────┘ └────────────┘   │
-└──────────────────────────────────────────────────┘
-```
-
----
-
-## 🔧 기술 스택
-
-| 레이어 | 기술 | 용도 |
-|--------|------|------|
-| 프론트엔드 | React + TypeScript + Vite | UI |
-| 그래프 시각화 | Cytoscape.js | 의존성/플로우 그래프 |
-| 애니메이션 | Framer Motion + CSS | 플로우 애니메이션, floating, 전환 |
-| 데스크톱 | Tauri v2 | 경량 네이티브 앱 |
-| 백엔드 | Rust | daemon 핵심 엔진 |
-| 파일 감시 | notify | 실시간 변경 감지 |
-| AST 파싱 | tree-sitter | 다중 언어 의존성 추출 |
-| Git | git2-rs | 커밋, 브랜치, diff |
-| 그래프 구조 | petgraph | 의존성 그래프 자료구조 |
-| AI 연동 | MCP 서버 | 에이전트 tool API |
-
----
-
-## 📁 디렉토리 구조 (DDD)
-
-```
-viber/
-├── src-tauri/                          # Rust 백엔드 (daemon)
-│   ├── src/
-│   │   ├── main.rs
-│   │   ├── lib.rs                      # Tauri 앱 빌더 + command 등록
-│   │   ├── domain/                     # ── 도메인 레이어 ──
-│   │   │   ├── project/                # 프로젝트 관리, 설정, .viber/
-│   │   │   ├── graph/                  # 의존성 그래프 (핵심 도메인)
-│   │   │   ├── flow/                   # 유스케이스 플로우 트래킹
-│   │   │   ├── git/                    # Git 조작 (커밋, 브랜치, diff)
-│   │   │   ├── guardrail/             # 가드레일 (스코프 경계, 위반 감지)
-│   │   │   ├── score/                  # 의존성 점수 (SOLID 기반)
-│   │   │   └── context/               # 컨텍스트 팩 생성
-│   │   ├── infra/                      # ── 인프라 레이어 ──
-│   │   │   ├── watcher/                # 파일 감시 (notify)
-│   │   │   ├── parser/                 # Tree-sitter 파서
-│   │   │   │   ├── mod.rs              # ParserRegistry trait
-│   │   │   │   ├── python.rs
-│   │   │   │   ├── typescript.rs
-│   │   │   │   ├── csharp.rs
-│   │   │   │   └── dart.rs
-│   │   │   └── mcp/                    # MCP 서버 (에이전트 연동)
-│   │   └── shared/                     # ── 공유 레이어 ──
-│   │       ├── types.rs                # ModuleId, NodeId, Edge 등
-│   │       ├── error.rs                # ViberError
-│   │       └── event.rs                # 이벤트 버스
-│   └── Cargo.toml
-├── src/                                # React 프론트엔드
-│   ├── app/
-│   │   ├── App.tsx
-│   │   └── providers.tsx
-│   ├── domains/                        # ── 도메인별 UI ──
-│   │   ├── project/                    # 프로젝트 열기, 설정
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store.ts
-│   │   ├── graph/                      # 그래프 캔버스, 노드/간선
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── styles/
-│   │   │   └── store.ts
-│   │   ├── flow/                       # 플로우 애니메이션, 즐겨찾기
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store.ts
-│   │   ├── git/                        # Git 패널, 타임라인
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store.ts
-│   │   ├── guardrail/                  # 스코프 드로잉, 위반 알림
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store.ts
-│   │   ├── score/                      # 점수 카드, 메트릭
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   └── store.ts
-│   │   └── context/                    # 컨텍스트 팩 빌더
-│   │       ├── components/
-│   │       ├── hooks/
-│   │       └── store.ts
-│   ├── shared/                         # 공통 UI, 훅, 테마
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── styles/
-│   │   └── types/
-│   └── main.tsx
-├── .viber/                             # 대상 프로젝트에 생성되는 설정
-│   ├── layout.json                     # 노드 위치 (깊이별)
-│   ├── bookmarks.json                  # 유스케이스 즐겨찾기
-│   ├── guardrails.json                 # 스코프 경계
-│   └── config.json                     # Viber 설정
-├── PROJECT.md                          # 프로젝트 전체 컨텍스트
-├── DESIGN_BACKEND.md                   # 백엔드 설계서
-├── DESIGN_FRONTEND.md                  # 프론트엔드 설계서
-├── DESIGN_API.md                       # 통신 스펙
-├── package.json
-└── vite.config.ts
-```
-
-### 설계 문서
-
-| 문서 | 내용 |
+| 파일 | 내용 |
 |------|------|
-| [`DESIGN_BACKEND.md`](./DESIGN_BACKEND.md) | Rust 백엔드 DDD 도메인 구조, 타입, 책임 |
-| [`DESIGN_FRONTEND.md`](./DESIGN_FRONTEND.md) | React 프론트엔드 컴포넌트, 스토어, 테마 |
-| [`DESIGN_API.md`](./DESIGN_API.md) | Tauri IPC command/event 전체 스펙 |
+| `docs/ROADMAP.md` | 기능별 로드맵 (순서 + FE/BE 분리) |
+| `docs/ARCHITECTURE.md` | 전체 아키텍처 + DDD 도메인 맵 |
+| `docs/API.md` | FE ↔ BE 통신 스펙 전체 |
+| `docs/features/01-project.md` | 프로젝트 열기/설정/파일 감시 |
+| `docs/features/02-graph.md` | 의존성 그래프 시각화 |
+| `docs/features/03-flow.md` | 유스케이스 플로우 트래킹 |
+| `docs/features/04-git.md` | Git 통합 (커밋/브랜치/타임라인) |
+| `docs/features/05-guardrail.md` | 가드레일 (스코프/위반/revert) |
+| `docs/features/06-score.md` | 의존성 점수 (SOLID) |
+| `docs/features/07-context.md` | 컨텍스트 팩 생성 |
+| `docs/features/08-mcp.md` | MCP 서버 (에이전트 연동) |
+| `docs/features/09-ux.md` | UX/미학 (floating, 테마, undo) |
 
----
-
-## 🗺️ 로드맵
-
-| 단계 | 범위 | 상태 |
-|------|------|------|
-| **v0.1** | 프로젝트 열기 + Python 모듈 의존성 그래프 + 실시간 감시 + live floating | 🔜 |
-| **v0.2** | 모듈 드릴다운 + 플로우 트래킹 + 애니메이션 | ⏳ |
-| **v0.3** | Git 퀵 커밋/푸시 + 선택 커밋 + AI 메시지 | ⏳ |
-| **v0.4** | 가드레일 (스코프 경계 + 위반 알림 + revert) | ⏳ |
-| **v0.5** | 컨텍스트 팩 생성 + 유스케이스 즐겨찾기 | ⏳ |
-| **v0.6** | 의존성 점수 (SOLID 기반) | ⏳ |
-| **v0.7** | Diff impact 시각화 + Git 타임라인 | ⏳ |
-| **v0.8** | MCP 서버 (에이전트 연동) | ⏳ |
-| **v0.9** | C#, Dart, TS 파서 추가 | ⏳ |
-| **v1.0** | UX 폴리싱 + 뷰 위치 저장 + 설정 | ⏳ |
-
----
-
-## 💡 설계 원칙
-
-1. **daemon이 모든 기능을 API로 제공** — UI와 에이전트가 동일한 인터페이스 사용
-2. **심볼 파싱은 지연 로딩** — 패키지 → 모듈 → 심볼, 필요할 때만
-3. **언어 파서는 모듈로 분리** — 새 언어 = 새 파서 모듈
-4. **Git은 daemon API를 통해서만** — 직접 조작 금지 (안전성)
-5. **예쁘고 빨라야 한다** — 성능과 미학 모두 타협 없음
-
----
-
-## 🚀 개발 환경
+## 빠른 시작
 
 ```bash
-# 의존성 설치
 pnpm install
-
-# 개발 모드
 pnpm tauri dev
-
-# 빌드
-pnpm tauri build
 ```
