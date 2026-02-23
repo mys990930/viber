@@ -21,7 +21,7 @@
 
 **의존:** Phase 0
 
-### 1A. 프로젝트 (→ `01-project.md`)
+### 1A. 프로젝트 (→ `modules/backend/project.md`, `modules/frontend/project.md`)
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
@@ -30,7 +30,7 @@
 | 1A-3 | ParserRegistry | BE | Tree-sitter 파서 등록 인프라 + Python 파서 |
 | 1A-4 | ProjectSelector UI | FE | 폴더 열기 다이얼로그, 프로젝트명 표시 |
 
-### 1B. 의존성 그래프 (→ `02-graph.md`)
+### 1B. 의존성 그래프 (→ `modules/backend/graph.md`, `modules/frontend/graph.md`)
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
@@ -52,7 +52,7 @@
 
 **의존:** Phase 1 (그래프가 있어야 diff impact 가능)
 
-### 2. Git (→ `04-git.md`)
+### 2. Git (→ `modules/backend/git.md`, `modules/frontend/git.md`)
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
@@ -69,7 +69,7 @@
 
 **의존:** Phase 1 (그래프 필요)
 
-### 3. 플로우 (→ `03-flow.md`)
+### 3. 플로우 (→ `modules/backend/flow.md`, `modules/frontend/flow.md`)
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
@@ -88,7 +88,7 @@
 
 **의존:** Phase 1 (그래프) + Phase 0-2 (파일 감시)
 
-### 4. 가드레일 (→ `05-guardrail.md`)
+### 4. 가드레일 (→ `modules/backend/guardrail.md`, `modules/frontend/guardrail.md`)
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
