@@ -6,23 +6,42 @@
 
 ```
 ┌──────────────────────────────────────────────────┐
-│           React + Cytoscape.js + Framer Motion    │  ← 프론트엔드
-│           (TypeScript, Vite, Zustand)             │
-└────────────────────┬─────────────────────────────┘
-                     │ Tauri IPC (invoke) + Event (push)
-┌────────────────────┴─────────────────────────────┐
-│               Rust Backend (Tauri)                │  ← daemon
+│              Frontend (React + TypeScript)         │
 │                                                   │
-│  domain/     infra/         shared/               │
-│  ├─project   ├─watcher      ├─types.rs            │
-│  ├─graph     ├─parser        ├─error.rs            │
-│  ├─flow      │ ├─python      └─event.rs            │
-│  ├─git       │ ├─typescript                       │
-│  ├─guardrail │ ├─csharp                           │
-│  ├─score     │ └─dart                             │
-│  └─context   └─mcp                               │
+│  domains/                                         │
+│  ├─ shell        (레이아웃, 테마, 공통)             │
+│  ├─ project      (열기/설정)                       │
+│  ├─ graph        (Cytoscape 그래프)               │
+│  ├─ flow         (플로우 오버레이)                  │
+│  ├─ git          (커밋/브랜치/타임라인)              │
+│  ├─ guardrail    (스코프/위반)                     │
+│  ├─ score        (점수 표시)                       │
+│  └─ context      (컨텍스트 팩)                     │
+└────────────────────┬─────────────────────────────┘
+                     │ Tauri IPC (Command + Event)
+┌────────────────────┴─────────────────────────────┐
+│              Backend (Rust / Tauri)                │
+│                                                   │
+│  domain/              infra/         shared/       │
+│  ├─ project           ├─ watcher     ├─ types.rs   │
+│  ├─ graph             ├─ parser      ├─ error.rs   │
+│  ├─ flow              └─ mcp         └─ event.rs   │
+│  ├─ git                                           │
+│  ├─ guardrail                                     │
+│  ├─ score                                         │
+│  └─ context                                       │
 └──────────────────────────────────────────────────┘
 ```
+
+---
+
+## 모듈 간 통신 원칙
+
+| 계층 | 원칙 | 상세 |
+|------|------|------|
+| **BE ↔ BE** | 이벤트 + 읽기 쿼리 | 직접 호출은 읽기만. 상태 변경은 이벤트. → `contracts/be-be.md` |
+| **FE ↔ FE** | Selector + CSS Class | 직접 import 금지. Zustand selector로 구독. → `contracts/fe-fe.md` |
+| **FE ↔ BE** | Command + Event | 모듈별 command/event 정의. 타 도메인 호출 금지. → `contracts/fe-be.md` |
 
 ---
 
@@ -34,47 +53,47 @@ src-tauri/src/
 ├── lib.rs                      # Tauri 빌더 + command 등록
 ├── domain/
 │   ├── project/
-│   │   ├── mod.rs              # ProjectService
-│   │   └── config.rs           # ViberConfig, .viber/ 관리
+│   │   ├── mod.rs
+│   │   └── config.rs
 │   ├── graph/
-│   │   ├── mod.rs              # GraphService (petgraph)
-│   │   ├── builder.rs          # 파서 결과 → 그래프 빌드
-│   │   └── diff.rs             # GraphDiff 계산
+│   │   ├── mod.rs
+│   │   ├── builder.rs
+│   │   └── diff.rs
 │   ├── flow/
-│   │   ├── mod.rs              # FlowService
-│   │   ├── tracer.rs           # DFS/BFS 호출 체인 추적
-│   │   └── bookmark.rs         # 즐겨찾기 CRUD
+│   │   ├── mod.rs
+│   │   ├── tracer.rs
+│   │   └── bookmark.rs
 │   ├── git/
-│   │   ├── mod.rs              # GitService (git2-rs)
-│   │   ├── commit.rs           # 커밋/스테이징
-│   │   ├── branch.rs           # 브랜치 관리
-│   │   ├── impact.rs           # DiffImpact 계산
-│   │   └── llm.rs              # AI 커밋 메시지
+│   │   ├── mod.rs
+│   │   ├── commit.rs
+│   │   ├── branch.rs
+│   │   ├── impact.rs
+│   │   └── llm.rs
 │   ├── guardrail/
-│   │   ├── mod.rs              # GuardrailService
-│   │   ├── scope.rs            # 스코프 정의
-│   │   └── violation.rs        # 위반 감지 + revert
+│   │   ├── mod.rs
+│   │   ├── scope.rs
+│   │   └── violation.rs
 │   ├── score/
-│   │   ├── mod.rs              # ScoreService
-│   │   └── metrics.rs          # SOLID 메트릭 계산
+│   │   ├── mod.rs
+│   │   └── metrics.rs
 │   └── context/
-│       ├── mod.rs              # ContextService
-│       └── formatter.rs        # 마크다운/프롬프트 포맷
+│       ├── mod.rs
+│       └── formatter.rs
 ├── infra/
 │   ├── watcher/
-│   │   └── mod.rs              # FileWatcher (notify)
+│   │   └── mod.rs
 │   ├── parser/
-│   │   ├── mod.rs              # LanguageParser trait + ParserRegistry
+│   │   ├── mod.rs
 │   │   ├── python.rs
 │   │   ├── typescript.rs
 │   │   ├── csharp.rs
 │   │   └── dart.rs
 │   └── mcp/
-│       └── mod.rs              # MCP 프로토콜 서버
+│       └── mod.rs
 └── shared/
-    ├── types.rs                # ModuleId, Language, Symbol 등
-    ├── error.rs                # ViberError (thiserror)
-    └── event.rs                # ViberEvent enum + EventBus
+    ├── types.rs
+    ├── error.rs
+    └── event.rs
 ```
 
 ---
@@ -87,83 +106,43 @@ src/
 │   ├── App.tsx
 │   └── providers.tsx
 ├── domains/
+│   ├── shell/
+│   │   ├── components/         # Layout, Sidebar, Toolbar, StatusBar, Toast, Modal
+│   │   ├── hooks/              # useTauriCommand, useTauriEvent, useUndoRedo
+│   │   ├── styles/             # theme, colors, animations
+│   │   └── store.ts
 │   ├── project/
 │   │   ├── components/         # ProjectSelector, SettingsPanel
-│   │   ├── hooks/              # useProject
+│   │   ├── hooks/
 │   │   └── store.ts
 │   ├── graph/
 │   │   ├── components/         # GraphCanvas, NodeTooltip, EdgeDetail, DepthToggle
-│   │   ├── hooks/              # useGraph, useCytoscape, useSymbols
-│   │   ├── styles/             # graph-theme.ts (Cytoscape 스타일)
+│   │   ├── hooks/              # useGraph, useCytoscape, useSymbols, useLiveFloating
+│   │   ├── styles/             # graph-theme.ts
 │   │   └── store.ts
 │   ├── flow/
-│   │   ├── components/         # FlowOverlay, EntryPicker, FlowAnimation, BookmarkList
-│   │   ├── hooks/              # useFlow, useFlowAnimation
+│   │   ├── components/         # EntryPicker, FlowOverlay, FlowAnimation, BookmarkList
+│   │   ├── hooks/
 │   │   └── store.ts
 │   ├── git/
-│   │   ├── components/         # GitPanel, CommitForm, FileStaging, BranchSelect, Timeline, DiffImpact
-│   │   ├── hooks/              # useGit, useDiffImpact
+│   │   ├── components/         # GitPanel, CommitForm, FileStaging, BranchSelect, ...
+│   │   ├── hooks/
 │   │   └── store.ts
 │   ├── guardrail/
-│   │   ├── components/         # ScopeDrawer, ScopeList, ViolationAlert, RevertButton
-│   │   ├── hooks/              # useGuardrail
+│   │   ├── components/         # ScopeDrawer, ScopeList, ViolationAlert
+│   │   ├── hooks/
 │   │   └── store.ts
 │   ├── score/
 │   │   ├── components/         # ScoreCard, MetricBreakdown, CycleWarning
-│   │   ├── hooks/              # useScore
+│   │   ├── hooks/
 │   │   └── store.ts
 │   └── context/
 │       ├── components/         # ContextBuilder, ContextPreview, CopyButton
-│       ├── hooks/              # useContext
+│       ├── hooks/
 │       └── store.ts
 ├── shared/
-│   ├── components/             # Layout, Sidebar, Toolbar, Toast, Modal
-│   ├── hooks/                  # useTauriCommand, useTauriEvent, useUndoRedo
-│   ├── styles/                 # theme.ts, colors.ts, animations.ts
-│   └── types/                  # index.ts
+│   └── types/                  # FE↔BE 공유 타입 (도메인별 .ts)
 └── main.tsx
-```
-
----
-
-## 도메인 간 의존 관계
-
-```
-Project ──→ Watcher (파일 감시 시작)
-              │
-              ▼
-            Parser ──→ Graph (파싱 결과 → 그래프 빌드)
-                         │
-              ┌──────────┼──────────┐
-              ▼          ▼          ▼
-            Flow      Score     Guardrail
-              │                     │
-              ▼                     │
-           Context                  │
-                                    │
-            Git ──→ Graph (diff impact)
-              │  ──→ Flow  (영향 플로우)
-              │
-              ▼
-           LLM API (외부)
-```
-
-**규칙:** 하위 도메인은 상위를 참조 가능. 역방향 참조는 이벤트로.
-
----
-
-## 이벤트 흐름
-
-```
-[파일 변경]
-  → FileWatcher → FileEvent
-      ├→ GraphService.on_file_change() → 재파싱 → GraphDiff → emit("graph:updated")
-      ├→ GuardrailService.on_file_change() → 위반 체크 → emit("guardrail:violation")
-      └→ Frontend listen("project:file_changed")
-
-[Git 커밋]
-  → GitService.commit() → emit("git:status_changed")
-      → ScoreService.recalculate() → emit("score:updated")
 ```
 
 ---
@@ -173,8 +152,9 @@ Project ──→ Watcher (파일 감시 시작)
 ```
 target-project/
 └── .viber/
-    ├── config.json             # Viber 설정
-    ├── layout.json             # 노드 위치 (깊이별)
-    ├── bookmarks.json          # 유스케이스 즐겨찾기
-    └── guardrails.json         # 스코프 경계 정의
+    ├── config.json
+    ├── layout.json
+    ├── bookmarks.json
+    ├── guardrails.json
+    └── backups/                # guardrail 백업 (최근 100개)
 ```
