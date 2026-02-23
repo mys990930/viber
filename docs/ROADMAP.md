@@ -198,6 +198,9 @@ Phase 1 (프로젝트 + 그래프) ←── MVP
 
 ## 현재 상태
 
-- [x] Phase 0-1: Tauri + React 스캐폴딩
-- [ ] Phase 0-2 ~ 0-5: 기반 인프라
+- [x] Phase 0-1: Tauri 셸 + React 레이아웃
+- [x] Phase 0-2: 이벤트 버스
+- [x] Phase 0-3: 에러 타입 (0-2에 포함)
+- [x] Phase 0-4: Tauri command/event 래퍼 hooks
+- [x] Phase 0-5: 다크 테마 (0-1에 포함)
 - [ ] Phase 1 이후: 미착수
