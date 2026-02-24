@@ -1,6 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 import cytoscape from 'cytoscape';
+import coseBilkent from 'cytoscape-cose-bilkent';
 import type { GraphNode, GraphEdge } from '../../../shared/types/graph';
+
+// Register cose-bilkent layout
+cytoscape.use(coseBilkent);
 
 export type CytoscapeInstance = cytoscape.Core;
 

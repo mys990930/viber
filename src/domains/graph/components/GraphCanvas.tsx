@@ -7,6 +7,7 @@ export function GraphCanvas() {
   const {
     nodes,
     edges,
+    error,
     selectedNode,
     selectNode,
     hoverEdge,
@@ -44,9 +45,17 @@ export function GraphCanvas() {
     }
   }, [selectedNode, nodes, addNodeClass, removeNodeClass]);
 
+  const hasRenderableGraph = nodes.some((node) => node.type !== 'module') || edges.length > 0;
+
   return (
     <div ref={containerRef} className={styles.canvas}>
-      {nodes.length === 0 && (
+      {error && (
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon}>⚠️</span>
+          <span className={styles.emptyText}>{error}</span>
+        </div>
+      )}
+      {!error && !hasRenderableGraph && (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>⚜️</span>
           <span className={styles.emptyText}>Open a project to see the graph</span>

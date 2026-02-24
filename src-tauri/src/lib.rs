@@ -69,6 +69,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            domain::project::commands::project_validate_path,
             domain::project::commands::project_open,
             domain::project::commands::project_close,
             domain::project::commands::project_get_config,

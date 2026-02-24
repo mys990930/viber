@@ -14,13 +14,6 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
     let mut edges = Vec::new();
 
     let root_id = "module:project".to_string();
-    nodes.push(GraphNode {
-        id: root_id.clone(),
-        node_type: GraphNodeType::Module,
-        label: "project".to_string(),
-        path: Some(PathBuf::from(".")),
-        language: None,
-    });
 
     let mut files = Vec::new();
     collect_files(root, &mut files);
@@ -88,6 +81,16 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
 
     let package_names = parse_package_dependencies(root);
     let mut seen_pkg = HashSet::new();
+
+    if !package_names.is_empty() {
+        nodes.push(GraphNode {
+            id: root_id.clone(),
+            node_type: GraphNodeType::Module,
+            label: "project".to_string(),
+            path: Some(PathBuf::from(".")),
+            language: None,
+        });
+    }
 
     for package in package_names {
         if !seen_pkg.insert(package.clone()) {

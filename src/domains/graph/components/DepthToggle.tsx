@@ -1,9 +1,8 @@
-import React from 'react';
 import { useGraphStore } from '../store';
 import type { GraphDepth } from '../../../shared/types/graph';
 import styles from './DepthToggle.module.css';
 
-export function DepthToggle(): JSX.Element {
+export function DepthToggle(): React.JSX.Element {
   const depth = useGraphStore((s) => s.depth);
   const setDepth = useGraphStore((s) => s.setDepth);
 

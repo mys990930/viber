@@ -11,6 +11,14 @@ use crate::shared::types::{PartialConfig, ProjectInfo, RecentProject, ViberConfi
 type ProjectState = Mutex<ProjectService>;
 
 #[tauri::command]
+pub fn project_validate_path(state: State<'_, ProjectState>, path: String) -> Result<(), ViberError> {
+    let service = state
+        .lock()
+        .map_err(|e| ViberError::Other(format!("project state poisoned: {e}")))?;
+    service.validate_path(&PathBuf::from(path))
+}
+
+#[tauri::command]
 pub fn project_open(
     state: State<'_, ProjectState>,
     parser_registry: State<'_, Mutex<ParserRegistry>>,

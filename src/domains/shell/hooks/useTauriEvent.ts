@@ -3,7 +3,9 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 
 // Check if running in Tauri environment
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 }
 
 /**

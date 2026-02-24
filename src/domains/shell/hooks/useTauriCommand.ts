@@ -3,7 +3,9 @@ import type { InvokeArgs } from '@tauri-apps/api/core';
 
 // Check if running in Tauri environment
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 }
 
 interface UseTauriCommandResult<T> {
@@ -46,7 +48,7 @@ export function useTauriCommand<T>(cmd: string): UseTauriCommandResult<T> {
             ? (e as { message: string }).message
             : String(e);
         setError(msg);
-        return null;
+        throw e; // 에러를 re-throw → 호출자가 try/catch로 처리 가능
       } finally {
         setLoading(false);
       }

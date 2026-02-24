@@ -1,5 +1,6 @@
 import { Layout, Sidebar, SidebarSection } from './domains/shell';
 import { ProjectSelector, SettingsPanel } from './domains/project';
+import { GraphCanvas } from './domains/graph';
 
 function App() {
   return (
@@ -14,21 +15,7 @@ function App() {
           </SidebarSection>
         </Sidebar>
       }
-      canvas={
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          color: 'var(--text-muted)',
-          fontSize: '14px',
-          flexDirection: 'column',
-          gap: '8px',
-        }}>
-          <span style={{ fontSize: '48px', opacity: 0.3 }}>⚜️</span>
-          <span>Graph canvas will render here</span>
-        </div>
-      }
+      canvas={<GraphCanvas />}
     />
   );
 }

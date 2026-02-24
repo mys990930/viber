@@ -59,6 +59,25 @@
   cursor:pointer;
 }
 
+.danger{
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid rgba(255,107,107,0.3);
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.danger:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+.buttonGroup{
+  display:flex;
+  gap:8px;
+}
+
 .openInfo{
   display:flex;
   gap:10px;
@@ -88,6 +107,16 @@
   color:var(--text-muted);
   font-size:13px;
   margin-bottom:8px;
+}
+
+.error{
+  background: rgba(255,107,107,0.1);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: #ff6b6b;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
 }
 
 .list{

@@ -13,7 +13,9 @@ interface RecentProject {
 
 // Check if running in Tauri environment
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 }
 
 // Browser mode: localStorage keys
@@ -50,6 +52,36 @@ function saveToStorage<T>(key: string, value: T): void {
   }
 }
 
+// Browser mode: clear localStorage
+function clearStorage(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.info);
+    localStorage.removeItem(STORAGE_KEYS.config);
+    localStorage.removeItem(STORAGE_KEYS.recent);
+  } catch {
+    // ignore
+  }
+}
+
+function getPathValidationError(path: string, isBrowserMode: boolean): string | null {
+  const trimmed = path.trim();
+  if (!trimmed) {
+    return 'Invalid path: path cannot be empty';
+  }
+
+  // In browser fallback we cannot verify real filesystem existence,
+  // so enforce stricter input format to catch obvious bad paths.
+  if (isBrowserMode) {
+    const isUnixAbs = trimmed.startsWith('/');
+    const isWindowsAbs = /^[a-zA-Z]:\\/.test(trimmed);
+    if (!isUnixAbs && !isWindowsAbs) {
+      return 'Invalid path: use an absolute path (e.g. /Users/name/project)';
+    }
+  }
+
+  return null;
+}
+
 export function useProject() {
   const {
     info,
@@ -65,9 +97,10 @@ export function useProject() {
   } = useProjectStore();
 
   const [recent, setRecent] = useState<RecentProject[]>([]);
-  const [isBrowserMode] = useState(() => !isTauri());
+  const isBrowserMode = !isTauri();
 
   // Tauri commands (only used in Tauri mode)
+  const validatePathCmd = useTauriCommand<void>('project_validate_path');
   const openCmd = useTauriCommand<ProjectInfo>('project_open');
   const closeCmd = useTauriCommand<void>('project_close');
   const getConfigCmd = useTauriCommand<ViberConfig>('project_get_config');
@@ -132,42 +165,30 @@ export function useProject() {
 
   const openProject = useCallback(
     async (path: string) => {
+      const pathError = getPathValidationError(path, isBrowserMode);
+      if (pathError) {
+        setError(pathError);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
       try {
         if (isBrowserMode) {
-          // Browser mode: create mock project info
-          const pathParts = path.split('/').filter(Boolean);
-          const name = pathParts[pathParts.length - 1] || 'Unknown';
-
-          const mockInfo: ProjectInfo = {
-            name,
-            root: path,
-            languages: ['typescript'],
-          };
-
-          setInfo(mockInfo);
-          setIsOpen(true);
-
-          // Set default config if not exists
-          setConfig((prev) => prev || getDefaultConfig());
-
-          // Add to recent
-          setRecent((prev) => {
-            const filtered = prev.filter((p) => p.root !== path);
-            return [{ name, root: path }, ...filtered].slice(0, 10);
-          });
-        } else {
-          // Tauri mode: use backend
-          const nextInfo = await openCmd.invoke({ path });
-          if (!nextInfo) return;
-
-          setInfo(nextInfo);
-          setIsOpen(true);
-
-          await Promise.all([refreshConfig(), refreshRecent()]);
+          setError('Project open is not supported in web fallback. Run `pnpm tauri dev`.');
+          return;
         }
+
+        await validatePathCmd.invoke({ path });
+
+        const nextInfo = await openCmd.invoke({ path });
+        if (!nextInfo) return;
+
+        setInfo(nextInfo);
+        setIsOpen(true);
+
+        await Promise.all([refreshConfig(), refreshRecent()]);
       } catch (e: any) {
         setError(e?.message || String(e));
       } finally {
@@ -176,6 +197,7 @@ export function useProject() {
     },
     [
       isBrowserMode,
+      validatePathCmd,
       openCmd,
       refreshConfig,
       refreshRecent,
@@ -198,6 +220,12 @@ export function useProject() {
       setInfo(null);
       setConfig(null);
       setIsOpen(false);
+      setRecent([]);
+      
+      // Clear localStorage in browser mode
+      if (isBrowserMode) {
+        clearStorage();
+      }
     } catch (e: any) {
       setError(e?.message || String(e));
     } finally {
@@ -241,6 +269,7 @@ export function useProject() {
 
   const loading =
     storeLoading ||
+    validatePathCmd.loading ||
     openCmd.loading ||
     closeCmd.loading ||
     getConfigCmd.loading ||
@@ -249,6 +278,7 @@ export function useProject() {
 
   const error =
     storeError ||
+    validatePathCmd.error ||
     openCmd.error ||
     closeCmd.error ||
     getConfigCmd.error ||

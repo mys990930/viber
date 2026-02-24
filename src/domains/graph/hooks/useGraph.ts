@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useGraphStore } from '../store';
+import { useProjectStore } from '../../project/store';
 import { useTauriCommand, useTauriEvent } from '../../shell';
 import type { GraphData, GraphDepth, GraphDiff } from '../../../shared/types/graph';
 import { getMockGraphByDepth } from '../mock/graph';
 
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 }
 
 export function useGraph() {
+  const isProjectOpen = useProjectStore((s) => s.isOpen);
+
   const {
     nodes,
     edges,
@@ -50,16 +55,27 @@ export function useGraph() {
     }
   }, [invoke, setDepth, setEdges, setNodes]);
 
-  // Ensure initial load in browser mode (store already seeded in store, but keep safe)
+  // Browser mode: seed mock graph once
   useEffect(() => {
-    if (!isTauri()) {
-      const mock = getMockGraphByDepth(depth);
-      setNodes(mock.nodes);
-      setEdges(mock.edges);
-    }
-    // In Tauri mode we don't auto-load here; caller should call loadGraph when appropriate
+    if (isTauri()) return;
+    const mock = getMockGraphByDepth(depth);
+    setNodes(mock.nodes);
+    setEdges(mock.edges);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Tauri mode: load graph when project open state changes
+  useEffect(() => {
+    if (!isTauri()) return;
+
+    if (!isProjectOpen) {
+      setNodes([]);
+      setEdges([]);
+      return;
+    }
+
+    void loadGraph(depth);
+  }, [depth, isProjectOpen, loadGraph, setEdges, setNodes]);
 
   const api = useMemo(() => ({
     nodes,

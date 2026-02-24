@@ -26,7 +26,7 @@ impl ProjectService {
         }
     }
 
-    pub fn open(&mut self, path: &Path, parser_registry: &ParserRegistry) -> Result<ProjectInfo, ViberError> {
+    pub fn validate_path(&self, path: &Path) -> Result<(), ViberError> {
         if !path.exists() {
             return Err(ViberError::ProjectPathNotFound {
                 path: path.display().to_string(),
@@ -38,6 +38,12 @@ impl ProjectService {
                 path: path.display().to_string(),
             });
         }
+
+        Ok(())
+    }
+
+    pub fn open(&mut self, path: &Path, parser_registry: &ParserRegistry) -> Result<ProjectInfo, ViberError> {
+        self.validate_path(path)?;
 
         let root = canonicalize_or_owned(path);
         let mut config = config::ensure_project_files(&root)?;

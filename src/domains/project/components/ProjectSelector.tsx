@@ -1,22 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styles from './ProjectSelector.module.css';
 import { useProject } from '../hooks/useProject';
 
 // Check if running in Tauri environment
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
 }
 
 export function ProjectSelector(): React.JSX.Element {
-  const { openProject, isOpen, info, loading } = useProject();
-  const [recent, setRecent] = useState<string[]>([]);
+  const { openProject, closeProject, isOpen, info, loading, error, recent } = useProject();
   const [working] = useState(false);
-
-  useEffect(() => {
-    // TODO: Load recent projects from backend
-    // For now, use empty list
-    setRecent([]);
-  }, []);
 
   async function handleOpenFolder() {
     let path: string | null = null;
@@ -64,13 +59,24 @@ export function ProjectSelector(): React.JSX.Element {
           {isOpen && (
             <div className={styles.openInfo}>
               <span className={styles.projectName}>{info?.name || 'Current Project'}</span>
-              <button className={styles.ghost} onClick={handleOpenFolder} disabled={working || loading}>
-                Change
-              </button>
+              <div className={styles.buttonGroup}>
+                <button className={styles.ghost} onClick={handleOpenFolder} disabled={working || loading}>
+                  Change
+                </button>
+                <button className={styles.danger} onClick={closeProject} disabled={loading}>
+                  Close
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {error && (
+        <div className={styles.error}>
+          {error}
+        </div>
+      )}
 
       <div className={styles.section}>
         <h4 className={styles.sectionTitle}>Recent Projects</h4>
@@ -79,9 +85,9 @@ export function ProjectSelector(): React.JSX.Element {
 
         <ul className={styles.list}>
           {recent.map((r) => (
-            <li key={r} className={styles.item}>
-              <button className={styles.itemBtn} onClick={() => handleOpenRecent(r)}>
-                <div className={styles.itemMain}>{r}</div>
+            <li key={r.root} className={styles.item}>
+              <button className={styles.itemBtn} onClick={() => handleOpenRecent(r.root)}>
+                <div className={styles.itemMain}>{r.name}</div>
                 <div className={styles.itemAction}>Open</div>
               </button>
             </li>
