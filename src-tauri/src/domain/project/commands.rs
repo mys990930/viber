@@ -35,7 +35,9 @@ pub fn project_open(
         let registry = parser_registry
             .lock()
             .map_err(|e| ViberError::Other(format!("parser registry state poisoned: {e}")))?;
+        println!("[BE] project_open: opening path={}", path);
         let info = service.open(&PathBuf::from(&path), &registry)?;
+        println!("[BE] project_open: opened, name={}, languages={:?}", info.name, info.languages);
         // registry 락 여기서 해제됨
         info
     };
@@ -49,7 +51,9 @@ pub fn project_open(
         let mut graph = graph_state
             .lock()
             .map_err(|e| ViberError::Other(format!("graph state poisoned: {e}")))?;
+        println!("[BE] project_open: rebuilding graph...");
         let _ = graph.rebuild(&info.root, &registry);
+        println!("[BE] project_open: graph rebuild done");
     }
 
     Ok(info)

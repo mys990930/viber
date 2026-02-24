@@ -9,12 +9,14 @@ type GraphState = Mutex<GraphService>;
 
 #[tauri::command]
 pub fn graph_get(state: State<'_, GraphState>, depth: String) -> Result<serde_json::Value, ViberError> {
+    println!("[BE] graph_get called, depth={}", depth);
     let service = state
         .lock()
         .map_err(|e| ViberError::Other(format!("graph state poisoned: {e}")))?;
 
     let depth = parse_depth(&depth)?;
     let graph = service.get_graph(depth);
+    println!("[BE] graph_get: nodes={}, edges={}", graph.nodes.len(), graph.edges.len());
 
     serde_json::to_value(graph).map_err(|e| ViberError::Other(format!("graph serialization failed: {e}")))
 }

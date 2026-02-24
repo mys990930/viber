@@ -38,6 +38,7 @@ export function useGraph() {
   });
 
   const loadGraph = useCallback(async (d: GraphDepth) => {
+    console.log('[graph] loadGraph called, depth:', d);
     setDepth(d);
 
     if (!isTauri()) {
@@ -48,8 +49,11 @@ export function useGraph() {
     }
 
     // Tauri: invoke command
+    console.log('[graph] invoking graph_get...');
     const res = await invoke({ depth: d });
+    console.log('[graph] graph_get result:', res);
     if (res.ok && res.data) {
+      console.log('[graph] setting nodes:', res.data.nodes?.length, 'edges:', res.data.edges?.length);
       setNodes(res.data.nodes);
       setEdges(res.data.edges);
     }
@@ -67,6 +71,8 @@ export function useGraph() {
   // Tauri mode: load graph when project open state changes
   useEffect(() => {
     if (!isTauri()) return;
+
+    console.log('[graph] useEffect triggered, isProjectOpen:', isProjectOpen, 'depth:', depth);
 
     if (!isProjectOpen) {
       setNodes([]);

@@ -48,7 +48,7 @@ pub struct GraphNode {
     pub language: Option<Language>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum GraphNodeType {
     Package,
@@ -65,7 +65,7 @@ pub struct GraphEdge {
     pub kind: EdgeKind,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EdgeKind {
     PackageDep,

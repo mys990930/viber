@@ -180,13 +180,17 @@ export function useProject() {
           return;
         }
 
+        console.log('[project] openProject: validating path:', path);
         const validResult = await validatePathCmd.invoke({ path });
+        console.log('[project] openProject: validate result:', validResult);
         if (!validResult.ok) {
           setError(validResult.error);
           return;
         }
 
+        console.log('[project] openProject: opening...');
         const openResult = await openCmd.invoke({ path });
+        console.log('[project] openProject: open result:', openResult);
         if (!openResult.ok) {
           setError(openResult.error);
           return;
@@ -194,6 +198,7 @@ export function useProject() {
         const nextInfo = openResult.data;
         if (!nextInfo) return;
 
+        console.log('[project] openProject: setting info, isOpen=true');
         setInfo(nextInfo);
         setIsOpen(true);
 
