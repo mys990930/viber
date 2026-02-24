@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useGraphStore } from '../store';
 import { useProjectStore } from '../../project/store';
 import { useTauriCommand, useTauriEvent } from '../../shell';
-import type { GraphData, GraphDepth, GraphDiff } from '../../../shared/types/graph';
+import type { GraphData, GraphDepth } from '../../../shared/types/graph';
 import { getMockGraphByDepth } from '../mock/graph';
 
 function isTauri(): boolean {
@@ -27,14 +27,14 @@ export function useGraph() {
     toggleFloating,
     setNodes,
     setEdges,
-    applyDiff,
   } = useGraphStore();
 
   const { loading, error, invoke } = useTauriCommand<GraphData>('graph_get');
 
-  // Subscribe to graph:updated events in Tauri mode and apply diffs
-  useTauriEvent<GraphDiff>('graph:updated', (diff) => {
-    applyDiff(diff);
+  // Subscribe to graph:changed signal — reload filtered graph from BE
+  useTauriEvent<void>('graph:changed', () => {
+    console.log('[graph] graph:changed event received, reloading...');
+    void loadGraph(depth);
   });
 
   const loadGraph = useCallback(async (d: GraphDepth) => {

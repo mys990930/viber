@@ -62,9 +62,10 @@ pub fn run() {
                             }
                         }
 
-                        // GraphUpdated → FE push
-                        ViberEvent::GraphUpdated(diff) => {
-                            let _ = app_handle.emit("graph:updated", diff);
+                        // GraphUpdated → FE에 변경 시그널만 전송 (diff 데이터 X)
+                        // FE가 graph_get command로 depth-filtered 데이터를 다시 요청
+                        ViberEvent::GraphUpdated(_diff) => {
+                            let _ = app_handle.emit("graph:changed", ());
                         }
 
                         _ => {}

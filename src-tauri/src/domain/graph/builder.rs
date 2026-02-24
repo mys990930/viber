@@ -1,28 +1,103 @@
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use petgraph::graph::DiGraph;
-
 use crate::infra::parser::ParserRegistry;
 use crate::shared::types::{EdgeKind, GraphEdge, GraphNode, GraphNodeType, Language};
 
 use super::service::GraphData;
 
 pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
-    let mut graph = DiGraph::<String, EdgeKind>::new();
     let mut nodes = Vec::new();
     let mut edges = Vec::new();
 
-    let root_id = "module:project".to_string();
-
+    // ─── 1. 파일 수집 ───
     let mut files = Vec::new();
     collect_files(root, &mut files);
 
-    let mut python_node_by_module = HashMap::new();
-    let mut python_files = Vec::new();
+    // ─── 2. 모듈(디렉토리) 노드 생성 ───
+    let mut module_ids: HashSet<String> = HashSet::new();
 
-    for file in files {
-        if is_excluded(&file) {
+    for file in &files {
+        if is_excluded(file) {
+            continue;
+        }
+        let relative = match file.strip_prefix(root) {
+            Ok(p) => p,
+            Err(_) => continue,
+        };
+        // 파일의 부모 디렉토리 = 모듈
+        if let Some(parent) = relative.parent() {
+            if parent.as_os_str().is_empty() {
+                // 루트 디렉토리 파일 → 루트 모듈
+                module_ids.insert(String::new());
+            } else {
+                // 중간 경로도 모듈로 등록 (e.g. src/utils/helpers.ts → src, src/utils)
+                let mut current = PathBuf::new();
+                for component in parent.components() {
+                    current.push(component);
+                    module_ids.insert(current.to_string_lossy().to_string());
+                }
+            }
+        }
+    }
+
+    // 루트 모듈
+    let root_module_id = "module:.".to_string();
+    nodes.push(GraphNode {
+        id: root_module_id.clone(),
+        node_type: GraphNodeType::Module,
+        label: root
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| ".".to_string()),
+        path: Some(PathBuf::from(".")),
+        language: None,
+    });
+
+    // 서브 모듈 노드
+    let mut sorted_modules: Vec<String> = module_ids.iter().filter(|m| !m.is_empty()).cloned().collect();
+    sorted_modules.sort();
+
+    for module_path in &sorted_modules {
+        let id = format!("module:{module_path}");
+        let label = Path::new(module_path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| module_path.clone());
+
+        nodes.push(GraphNode {
+            id: id.clone(),
+            node_type: GraphNodeType::Module,
+            label,
+            path: Some(PathBuf::from(module_path)),
+            language: None,
+        });
+
+        // 부모 모듈로의 엣지
+        let parent_id = if let Some(parent) = Path::new(module_path).parent() {
+            if parent.as_os_str().is_empty() {
+                root_module_id.clone()
+            } else {
+                format!("module:{}", parent.display())
+            }
+        } else {
+            root_module_id.clone()
+        };
+
+        edges.push(GraphEdge {
+            id: format!("module_import:{parent_id}->{id}"),
+            source: parent_id,
+            target: id,
+            kind: EdgeKind::ModuleImport,
+        });
+    }
+
+    // ─── 3. 파일 노드 + 엣지 ───
+    let mut python_node_by_module: HashMap<String, String> = HashMap::new();
+    let mut python_files: Vec<PathBuf> = Vec::new();
+
+    for file in &files {
+        if is_excluded(file) {
             continue;
         }
 
@@ -31,20 +106,37 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
             Err(_) => continue,
         };
 
-        let language = parser_registry.detect_language(&file);
+        let language = parser_registry.detect_language(file);
         let id = format!("file:{}", relative.display());
         let label = relative
             .file_name()
             .map(|name| name.to_string_lossy().to_string())
             .unwrap_or_else(|| relative.display().to_string());
 
-        graph.add_node(id.clone());
         nodes.push(GraphNode {
             id: id.clone(),
             node_type: GraphNodeType::File,
             label,
             path: Some(relative.to_path_buf()),
             language,
+        });
+
+        // 파일 → 소속 모듈 엣지
+        let parent_module_id = if let Some(parent) = relative.parent() {
+            if parent.as_os_str().is_empty() {
+                root_module_id.clone()
+            } else {
+                format!("module:{}", parent.display())
+            }
+        } else {
+            root_module_id.clone()
+        };
+
+        edges.push(GraphEdge {
+            id: format!("file_import:{parent_module_id}->{id}"),
+            source: parent_module_id,
+            target: id.clone(),
+            kind: EdgeKind::FileImport,
         });
 
         if language == Some(Language::Python) {
@@ -55,10 +147,11 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         }
     }
 
+    // ─── 4. Python import 엣지 ───
     if let Some(parser) = parser_registry.get(Language::Python) {
-        for relative in python_files {
+        for relative in &python_files {
             let source_id = format!("file:{}", relative.display());
-            let absolute = root.join(&relative);
+            let absolute = root.join(relative);
             let source = match std::fs::read_to_string(&absolute) {
                 Ok(content) => content,
                 Err(_) => continue,
@@ -79,18 +172,9 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         }
     }
 
+    // ─── 5. 패키지 의존성 ───
     let package_names = parse_package_dependencies(root);
     let mut seen_pkg = HashSet::new();
-
-    if !package_names.is_empty() {
-        nodes.push(GraphNode {
-            id: root_id.clone(),
-            node_type: GraphNodeType::Module,
-            label: "project".to_string(),
-            path: Some(PathBuf::from(".")),
-            language: None,
-        });
-    }
 
     for package in package_names {
         if !seen_pkg.insert(package.clone()) {
@@ -107,14 +191,19 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         });
 
         edges.push(GraphEdge {
-            id: format!("package_dep:{root_id}->{pkg_node_id}"),
-            source: root_id.clone(),
+            id: format!("package_dep:{root_module_id}->{pkg_node_id}"),
+            source: root_module_id.clone(),
             target: pkg_node_id,
             kind: EdgeKind::PackageDep,
         });
     }
 
-    let _ = &graph;
+    println!("[BE] build_graph: {} modules, {} files, {} packages, {} edges",
+        sorted_modules.len() + 1,
+        files.len(),
+        seen_pkg.len(),
+        edges.len(),
+    );
 
     GraphData { nodes, edges }
 }
@@ -140,6 +229,12 @@ fn is_excluded(path: &Path) -> bool {
         || path.components().any(|c| c.as_os_str() == "node_modules")
         || path.components().any(|c| c.as_os_str() == "target")
         || path.components().any(|c| c.as_os_str() == ".viber")
+        || path.components().any(|c| c.as_os_str() == "__pycache__")
+        || path.components().any(|c| c.as_os_str() == ".venv")
+        || path.components().any(|c| c.as_os_str() == "venv")
+        || path.components().any(|c| c.as_os_str() == ".tox")
+        || path.components().any(|c| c.as_os_str() == "dist")
+        || path.components().any(|c| c.as_os_str() == "build")
 }
 
 fn python_module_names(relative: &Path) -> Vec<String> {
