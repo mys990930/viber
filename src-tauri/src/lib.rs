@@ -13,7 +13,6 @@ use shared::event::{EventBus, ViberEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // 이벤트 버스 생성 (앱 전역)
     let event_bus = EventBus::default();
 
     tauri::Builder::default()
@@ -22,7 +21,7 @@ pub fn run() {
         .manage(Mutex::new(ProjectService::new(event_bus.clone())))
         .manage(Mutex::new(GraphService::new(event_bus.clone())))
         .manage(Mutex::new(ParserRegistry::default()))
-        .manage(event_bus) // Tauri State로 등록 → 모든 command에서 접근 가능
+        .manage(event_bus)
         .setup(|app| {
             let bus = app.state::<EventBus>().inner().clone();
             let app_handle = app.handle().clone();
@@ -31,36 +30,43 @@ pub fn run() {
                 let mut rx = bus.subscribe();
                 while let Ok(event) = rx.recv().await {
                     match event {
-                        ViberEvent::ProjectOpened(info) => {
-                            if let Ok(parser_registry) = app_handle.state::<Mutex<ParserRegistry>>().lock() {
-                                if let Ok(mut graph_service) = app_handle.state::<Mutex<GraphService>>().lock() {
-                                    let _ = graph_service.rebuild(&info.root, &parser_registry);
-                                }
-                            }
+                        // ProjectOpened / ProjectClosed → command 쪽에서 graph 처리 완료.
+                        // 여기서는 FE push만.
+                        ViberEvent::ProjectOpened(_) => {
+                            // graph rebuild는 project_open command에서 이미 수행
                         }
+                        ViberEvent::ProjectClosed => {
+                            // graph clear는 project_close command에서 이미 수행
+                        }
+
+                        // FileChanged → graph rebuild (watcher에서 옴)
                         ViberEvent::FileChanged(_) => {
-                            let root = app_handle
-                                .state::<Mutex<ProjectService>>()
-                                .lock()
-                                .ok()
-                                .and_then(|project_service| project_service.current_root());
+                            // ProjectService 락을 최소한으로 잡고 root만 꺼냄
+                            let root = {
+                                app_handle
+                                    .state::<Mutex<ProjectService>>()
+                                    .lock()
+                                    .ok()
+                                    .and_then(|s| s.current_root())
+                            };
 
                             if let Some(root) = root {
-                                if let Ok(parser_registry) = app_handle.state::<Mutex<ParserRegistry>>().lock() {
-                                    if let Ok(mut graph_service) = app_handle.state::<Mutex<GraphService>>().lock() {
-                                        let _ = graph_service.rebuild(&root, &parser_registry);
+                                // 락 순서 고정: ParserRegistry → GraphService
+                                let registry_state = app_handle.state::<Mutex<ParserRegistry>>();
+                                let graph_state = app_handle.state::<Mutex<GraphService>>();
+                                if let Ok(registry) = registry_state.inner().lock() {
+                                    if let Ok(mut graph) = graph_state.inner().lock() {
+                                        let _ = graph.rebuild(&root, &registry);
                                     }
                                 }
                             }
                         }
+
+                        // GraphUpdated → FE push
                         ViberEvent::GraphUpdated(diff) => {
                             let _ = app_handle.emit("graph:updated", diff);
                         }
-                        ViberEvent::ProjectClosed => {
-                            if let Ok(mut graph_service) = app_handle.state::<Mutex<GraphService>>().lock() {
-                                graph_service.clear();
-                            }
-                        }
+
                         _ => {}
                     }
                 }

@@ -4,6 +4,7 @@ use std::sync::Mutex;
 use tauri::State;
 
 use super::service::ProjectService;
+use crate::domain::graph::GraphService;
 use crate::infra::parser::ParserRegistry;
 use crate::shared::error::ViberError;
 use crate::shared::types::{PartialConfig, ProjectInfo, RecentProject, ViberConfig};
@@ -22,23 +23,54 @@ pub fn project_validate_path(state: State<'_, ProjectState>, path: String) -> Re
 pub fn project_open(
     state: State<'_, ProjectState>,
     parser_registry: State<'_, Mutex<ParserRegistry>>,
+    graph_state: State<'_, Mutex<GraphService>>,
+    app: tauri::AppHandle,
     path: String,
 ) -> Result<ProjectInfo, ViberError> {
-    let mut service = state
-        .lock()
-        .map_err(|e| ViberError::Other(format!("project state poisoned: {e}")))?;
-    let registry = parser_registry
-        .lock()
-        .map_err(|e| ViberError::Other(format!("parser registry state poisoned: {e}")))?;
-    service.open(&PathBuf::from(path), &registry)
+    // 1. 프로젝트 열기 (ParserRegistry 락은 여기서만 잡고 빨리 풀기)
+    let info = {
+        let mut service = state
+            .lock()
+            .map_err(|e| ViberError::Other(format!("project state poisoned: {e}")))?;
+        let registry = parser_registry
+            .lock()
+            .map_err(|e| ViberError::Other(format!("parser registry state poisoned: {e}")))?;
+        let info = service.open(&PathBuf::from(&path), &registry)?;
+        // registry 락 여기서 해제됨
+        info
+    };
+    // state 락도 여기서 해제됨
+
+    // 2. 그래프 빌드 (별도 락 획득 — 위 락들은 이미 풀림)
+    {
+        let registry = parser_registry
+            .lock()
+            .map_err(|e| ViberError::Other(format!("parser registry poisoned: {e}")))?;
+        let mut graph = graph_state
+            .lock()
+            .map_err(|e| ViberError::Other(format!("graph state poisoned: {e}")))?;
+        let _ = graph.rebuild(&info.root, &registry);
+    }
+
+    Ok(info)
 }
 
 #[tauri::command]
-pub fn project_close(state: State<'_, ProjectState>) -> Result<(), ViberError> {
+pub fn project_close(
+    state: State<'_, ProjectState>,
+    graph_state: State<'_, Mutex<GraphService>>,
+) -> Result<(), ViberError> {
     let mut service = state
         .lock()
         .map_err(|e| ViberError::Other(format!("project state poisoned: {e}")))?;
-    service.close()
+    service.close()?;
+
+    // 그래프도 클리어
+    if let Ok(mut graph) = graph_state.lock() {
+        graph.clear();
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
