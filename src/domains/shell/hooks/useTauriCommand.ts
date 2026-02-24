@@ -1,5 +1,10 @@
 import { useState, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import type { InvokeArgs } from '@tauri-apps/api/core';
+
+// Check if running in Tauri environment
+function isTauri(): boolean {
+  return typeof window !== 'undefined' && !!(window as any).__TAURI__;
+}
 
 interface UseTauriCommandResult<T> {
   data: T | null;
@@ -11,6 +16,7 @@ interface UseTauriCommandResult<T> {
 /**
  * Tauri command invoke 래퍼.
  * 에러 핸들링 + 로딩 상태를 자동 관리.
+ * 브라우저 환경에서는 mock 응답 또는 에러 반환.
  *
  * @example
  * const { data, loading, invoke } = useTauriCommand<ProjectInfo>('project:open');
@@ -26,7 +32,12 @@ export function useTauriCommand<T>(cmd: string): UseTauriCommandResult<T> {
       setLoading(true);
       setError(null);
       try {
-        const result = await invoke<T>(cmd, params);
+        if (!isTauri()) {
+          throw new Error('Tauri is not available. Run with `pnpm tauri dev` for full functionality.');
+        }
+        // Dynamic import to avoid errors in browser mode
+        const { invoke } = await import('@tauri-apps/api/core');
+        const result = await invoke<T>(cmd, params as InvokeArgs);
         setData(result);
         return result;
       } catch (e: unknown) {

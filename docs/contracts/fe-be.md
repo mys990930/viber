@@ -10,11 +10,11 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `project:open` | `{ path: string }` | `ProjectInfo` |
-| `project:close` | — | `void` |
-| `project:get_config` | — | `ViberConfig` |
-| `project:update_config` | `{ config: Partial<ViberConfig> }` | `ViberConfig` |
-| `project:recent` | — | `RecentProject[]` |
+| `project_open` | `{ path: string }` | `ProjectInfo` |
+| `project_close` | — | `void` |
+| `project_get_config` | — | `ViberConfig` |
+| `project_update_config` | `{ config: Partial<ViberConfig> }` | `ViberConfig` |
+| `project_recent` | — | `RecentProject[]` |
 
 ### Events (BE → FE)
 | Event | Payload |
@@ -28,10 +28,10 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `graph:get` | `{ depth: 'packages' \| 'modules' \| 'files' }` | `{ nodes, edges }` |
-| `graph:drill_down` | `{ moduleId: string }` | `{ nodes, edges }` |
-| `graph:edge_symbols` | `{ edgeId: string }` | `{ symbols: Symbol[] }` |
-| `graph:node_detail` | `{ nodeId: string }` | `NodeDetail` |
+| `graph_get` | `{ depth: 'packages' \| 'modules' \| 'files' }` | `{ nodes, edges }` |
+| `graph_drill_down` | `{ moduleId: string }` | `{ nodes, edges }` |
+| `graph_edge_symbols` | `{ edgeId: string }` | `{ symbols: Symbol[] }` |
+| `graph_node_detail` | `{ nodeId: string }` | `NodeDetail` |
 
 ### Events (BE → FE)
 | Event | Payload |
@@ -45,11 +45,11 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `flow:trace` | `{ moduleId: string, symbol: string }` | `FlowTrace` |
-| `flow:entry_candidates` | `{ query: string }` | `EntryCandidate[]` |
-| `flow:bookmarks` | — | `FlowBookmark[]` |
-| `flow:add_bookmark` | `{ name: string, flowId: string }` | `FlowBookmark` |
-| `flow:remove_bookmark` | `{ id: string }` | `void` |
+| `flow_trace` | `{ moduleId: string, symbol: string }` | `FlowTrace` |
+| `flow_entry_candidates` | `{ query: string }` | `EntryCandidate[]` |
+| `flow_bookmarks` | — | `FlowBookmark[]` |
+| `flow_add_bookmark` | `{ name: string, flowId: string }` | `FlowBookmark` |
+| `flow_remove_bookmark` | `{ id: string }` | `void` |
 
 ### Events (BE → FE)
 없음
@@ -61,16 +61,16 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `git:status` | — | `GitStatus` |
-| `git:stage` | `{ paths: string[] }` | `void` |
-| `git:unstage` | `{ paths: string[] }` | `void` |
-| `git:commit` | `{ message?: string, paths?: string[], push?: boolean }` | `CommitResult` |
-| `git:branches` | — | `BranchInfo[]` |
-| `git:create_branch` | `{ name: string, checkout?: boolean }` | `void` |
-| `git:checkout` | `{ branch: string }` | `void` |
-| `git:generate_message` | `{ paths?: string[] }` | `{ message: string }` |
-| `git:diff_impact` | `{ source?: string, target?: string }` | `DiffImpact` |
-| `git:timeline` | `{ limit?: number }` | `GitTimeline` |
+| `git_status` | — | `GitStatus` |
+| `git_stage` | `{ paths: string[] }` | `void` |
+| `git_unstage` | `{ paths: string[] }` | `void` |
+| `git_commit` | `{ message?: string, paths?: string[], push?: boolean }` | `CommitResult` |
+| `git_branches` | — | `BranchInfo[]` |
+| `git_create_branch` | `{ name: string, checkout?: boolean }` | `void` |
+| `git_checkout` | `{ branch: string }` | `void` |
+| `git_generate_message` | `{ paths?: string[] }` | `{ message: string }` |
+| `git_diff_impact` | `{ source?: string, target?: string }` | `DiffImpact` |
+| `git_timeline` | `{ limit?: number }` | `GitTimeline` |
 
 ### Events (BE → FE)
 | Event | Payload |
@@ -84,13 +84,13 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `guardrail:scopes` | — | `GuardrailScope[]` |
-| `guardrail:create_scope` | `{ name: string, moduleIds: string[] }` | `GuardrailScope` |
-| `guardrail:update_scope` | `{ id: string, name?: string, moduleIds?: string[] }` | `GuardrailScope` |
-| `guardrail:delete_scope` | `{ id: string }` | `void` |
-| `guardrail:violations` | — | `Violation[]` |
-| `guardrail:revert` | `{ violationId: string }` | `{ success: boolean }` |
-| `guardrail:dismiss` | `{ violationId: string }` | `void` |
+| `guardrail_scopes` | — | `GuardrailScope[]` |
+| `guardrail_create_scope` | `{ name: string, moduleIds: string[] }` | `GuardrailScope` |
+| `guardrail_update_scope` | `{ id: string, name?: string, moduleIds?: string[] }` | `GuardrailScope` |
+| `guardrail_delete_scope` | `{ id: string }` | `void` |
+| `guardrail_violations` | — | `Violation[]` |
+| `guardrail_revert` | `{ violationId: string }` | `{ success: boolean }` |
+| `guardrail_dismiss` | `{ violationId: string }` | `void` |
 
 ### Events (BE → FE)
 | Event | Payload |
@@ -104,8 +104,8 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `score:get` | — | `HealthScore` |
-| `score:module` | `{ moduleId: string }` | `ModuleScore` |
+| `score_get` | — | `HealthScore` |
+| `score_module` | `{ moduleId: string }` | `ModuleScore` |
 
 ### Events (BE → FE)
 | Event | Payload |
@@ -119,8 +119,8 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `context:generate` | `{ moduleIds: string[], flowId?: string, format: 'markdown' \| 'prompt', maxTokens?: number }` | `ContextPack` |
-| `context:copy` | `{ content: string }` | `void` |
+| `context_generate` | `{ moduleIds: string[], flowId?: string, format: 'markdown' \| 'prompt', maxTokens?: number }` | `ContextPack` |
+| `context_copy` | `{ content: string }` | `void` |
 
 ### Events (BE → FE)
 없음
@@ -132,8 +132,8 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `layout:save` | `{ depth, positions, zoom, pan }` | `void` |
-| `layout:load` | `{ depth }` | `LayoutState \| null` |
+| `layout_save` | `{ depth, positions, zoom, pan }` | `void` |
+| `layout_load` | `{ depth }` | `LayoutState \| null` |
 
 ### Events (BE → FE)
 없음
@@ -145,9 +145,9 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `mcp:start` | — | `{ port?: number }` |
-| `mcp:stop` | — | `void` |
-| `mcp:status` | — | `McpStatus` |
+| `mcp_start` | — | `{ port?: number }` |
+| `mcp_stop` | — | `void` |
+| `mcp_status` | — | `McpStatus` |
 
 ### Events (BE → FE)
 없음

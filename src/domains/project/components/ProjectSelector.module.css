@@ -1,0 +1,143 @@
+:root{
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-surface: #1a1a2e;
+  --accent-primary: #e94560;
+  --text-primary: #e0e0e0;
+  --text-secondary: #8888aa;
+  --text-muted: #555577;
+}
+
+.container{
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.title{
+  margin:0;
+  font-size:14px;
+  color:var(--text-secondary);
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.primary{
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.primary:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+.ghost{
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.openInfo{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.projectName{
+  color:var(--text-primary);
+  font-weight:600;
+  max-width:220px;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  white-space:nowrap;
+}
+
+.section{
+  margin-top:8px;
+}
+
+.sectionTitle{
+  margin:0 0 8px 0;
+  font-size:12px;
+  color:var(--text-secondary);
+}
+
+.muted{
+  color:var(--text-muted);
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.list{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.item{
+}
+
+.itemBtn{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding:8px 10px;
+  border-radius:6px;
+  color:var(--text-primary);
+  cursor:pointer;
+}
+
+.itemBtn:hover{
+  background: rgba(233,69,96,0.04);
+  border-color: rgba(233,69,96,0.14);
+}
+
+.itemMain{
+  color:var(--text-primary);
+  font-size:13px;
+  max-width:420px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:left;
+}
+
+.itemAction{
+  color:var(--accent-primary);
+  font-size:12px;
+  margin-left:12px;
+}
+
+/* small responsive tweaks */
+@media (max-width:520px){
+  .container{padding:12px}
+  .projectName{max-width:140px}
+}

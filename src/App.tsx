@@ -1,10 +1,19 @@
-import { Layout } from './domains/shell';
-import { Sidebar } from './domains/shell';
+import { Layout, Sidebar, SidebarSection } from './domains/shell';
+import { ProjectSelector, SettingsPanel } from './domains/project';
 
 function App() {
   return (
     <Layout
-      sidebar={<Sidebar />}
+      sidebar={
+        <Sidebar>
+          <SidebarSection title="Project" defaultOpen={true}>
+            <ProjectSelector />
+          </SidebarSection>
+          <SidebarSection title="Settings" defaultOpen={true}>
+            <SettingsPanel />
+          </SidebarSection>
+        </Sidebar>
+      }
       canvas={
         <div style={{
           display: 'flex',

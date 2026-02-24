@@ -103,6 +103,23 @@ pub struct Symbol {
     pub line: usize,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportInfo {
+    pub source: String,
+    pub symbols: Vec<String>,
+    pub is_external: bool,
+    pub line: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CallInfo {
+    pub caller: String,
+    pub callee: String,
+    pub line: usize,
+}
+
 // ─── Git ───
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -151,15 +168,64 @@ pub struct ScoreMetrics {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct LlmConfig {
+    pub provider: String,
+    pub model: String,
+    pub api_key_env: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecentProject {
+    pub name: String,
+    pub root: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PartialConfig {
+    pub languages: Option<Vec<Language>>,
+    pub llm: Option<Option<LlmConfig>>,
+    pub excluded_paths: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectInfo {
     pub name: String,
     pub root: PathBuf,
     pub languages: Vec<Language>,
+    pub config: ViberConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ViberConfig {
     pub languages: Vec<Language>,
+    pub llm: Option<LlmConfig>,
     pub excluded_paths: Vec<String>,
+}
+
+impl Default for ViberConfig {
+    fn default() -> Self {
+        Self {
+            languages: Vec::new(),
+            llm: None,
+            excluded_paths: Vec::new(),
+        }
+    }
+}
+
+impl ViberConfig {
+    pub fn apply_patch(&mut self, patch: PartialConfig) {
+        if let Some(languages) = patch.languages {
+            self.languages = languages;
+        }
+        if let Some(llm) = patch.llm {
+            self.llm = llm;
+        }
+        if let Some(excluded_paths) = patch.excluded_paths {
+            self.excluded_paths = excluded_paths;
+        }
+    }
 }

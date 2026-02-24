@@ -9,6 +9,25 @@ pub enum ViberError {
     #[error("File not found: {path}")]
     FileNotFound { path: String },
 
+    #[error("Project path not found: {path}")]
+    ProjectPathNotFound { path: String },
+
+    #[error("Project path is not a directory: {path}")]
+    ProjectPathNotDirectory { path: String },
+
+    #[error("Not a Viber project: {path}")]
+    NotProject { path: String },
+
+    #[error("Config parse error at {path}: {message}")]
+    ConfigParse { path: String, message: String },
+
+    #[error("IO error ({context}): {source}")]
+    IoWithContext {
+        context: String,
+        #[source]
+        source: std::io::Error,
+    },
+
     #[error("Git error: {message}")]
     GitError { message: String },
 
@@ -37,10 +56,17 @@ impl Serialize for ViberError {
         let (code, domain) = match self {
             ViberError::ProjectNotOpen => ("PROJECT_NOT_OPEN", "project"),
             ViberError::FileNotFound { .. } => ("FILE_NOT_FOUND", "project"),
+            ViberError::ProjectPathNotFound { .. } => ("PROJECT_PATH_NOT_FOUND", "project"),
+            ViberError::ProjectPathNotDirectory { .. } => {
+                ("PROJECT_PATH_NOT_DIRECTORY", "project")
+            }
+            ViberError::NotProject { .. } => ("NOT_PROJECT", "project"),
+            ViberError::ConfigParse { .. } => ("CONFIG_PARSE_ERROR", "project"),
             ViberError::GitError { .. } => ("GIT_ERROR", "git"),
             ViberError::ParserError { .. } => ("PARSER_ERROR", "parser"),
             ViberError::ScopeNotFound { .. } => ("SCOPE_NOT_FOUND", "guardrail"),
             ViberError::Io(_) => ("IO_ERROR", "system"),
+            ViberError::IoWithContext { .. } => ("IO_ERROR", "system"),
             ViberError::Other(_) => ("UNKNOWN", "system"),
         };
 
