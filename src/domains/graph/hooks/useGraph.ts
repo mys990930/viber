@@ -25,7 +25,7 @@ export function useGraph() {
     applyDiff,
   } = useGraphStore();
 
-  const { data, loading, error, invoke } = useTauriCommand<GraphData>('graph_get');
+  const { loading, error, invoke } = useTauriCommand<GraphData>('graph_get');
 
   // Subscribe to graph:updated events in Tauri mode and apply diffs
   useTauriEvent<GraphDiff>('graph:updated', (diff) => {

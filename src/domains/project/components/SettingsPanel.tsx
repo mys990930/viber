@@ -8,9 +8,6 @@ const LANGUAGES: Language[] = ['python', 'typescript', 'javascript', 'csharp', '
 export function SettingsPanel() {
   const { config, updateConfig, isOpen } = useProject();
 
-  // don't render when project not open
-  if (!isOpen) return null;
-
   const initialConfig = useMemo<ViberConfig | null>(() => config ?? null, [config]);
   const [localConfig, setLocalConfig] = useState<ViberConfig | null>(initialConfig);
 
@@ -19,7 +16,7 @@ export function SettingsPanel() {
     setLocalConfig(initialConfig);
   }, [initialConfig]);
 
-  if (!localConfig) return null;
+  if (!isOpen || !localConfig) return null;
 
   const toggleLanguage = (lang: Language) => {
     const set = new Set(localConfig.languages || []);

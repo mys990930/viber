@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useGraph } from '../hooks/useGraph';
 import { useCytoscape } from '../hooks/useCytoscape';
 import styles from './GraphCanvas.module.css';

@@ -36,3 +36,10 @@ export interface GraphDiff {
 // ─── Depth ───
 
 export type GraphDepth = 'packages' | 'modules' | 'files';
+
+// ─── Graph Data ───
+
+export interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}

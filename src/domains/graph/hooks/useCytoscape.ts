@@ -80,8 +80,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           style: {
             'border-color': '#e94560',
             'border-width': 4,
-            'shadow-blur': 10,
-            'shadow-color': '#e94560',
           },
         },
         // Changed node (file modified)
