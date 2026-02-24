@@ -24,7 +24,6 @@ export function GraphCanvas() {
       selectNode(nodeId);
     },
     onNodeHover: (nodeId) => {
-      // Could show tooltip here
       console.log('hover node:', nodeId);
     },
     onEdgeHover: (edgeId) => {
@@ -32,33 +31,37 @@ export function GraphCanvas() {
     },
   });
 
-  // Sync selected node with Cytoscape classes
   useEffect(() => {
-    // Remove selected class from all nodes
     nodes.forEach((node) => {
       removeNodeClass(node.id, 'selected');
     });
-
-    // Add selected class to current selection
     if (selectedNode) {
       addNodeClass(selectedNode, 'selected');
     }
   }, [selectedNode, nodes, addNodeClass, removeNodeClass]);
 
   const hasRenderableGraph = nodes.some((node) => node.type !== 'module') || edges.length > 0;
+  const showOverlay = !!error || !hasRenderableGraph;
 
   return (
-    <div ref={containerRef} className={styles.canvas}>
-      {error && (
-        <div className={styles.empty}>
-          <span className={styles.emptyIcon}>⚠️</span>
-          <span className={styles.emptyText}>{error}</span>
-        </div>
-      )}
-      {!error && !hasRenderableGraph && (
-        <div className={styles.empty}>
-          <span className={styles.emptyIcon}>⚜️</span>
-          <span className={styles.emptyText}>Open a project to see the graph</span>
+    <div className={styles.wrapper}>
+      {/* Cytoscape 전용 — React가 자식을 건드리지 않음 */}
+      <div ref={containerRef} className={styles.canvas} />
+
+      {/* React 오버레이 — 별도 레이어 */}
+      {showOverlay && (
+        <div className={styles.overlay}>
+          {error ? (
+            <>
+              <span className={styles.emptyIcon}>⚠️</span>
+              <span className={styles.emptyText}>{error}</span>
+            </>
+          ) : (
+            <>
+              <span className={styles.emptyIcon}>⚜️</span>
+              <span className={styles.emptyText}>Open a project to see the graph</span>
+            </>
+          )}
         </div>
       )}
     </div>
