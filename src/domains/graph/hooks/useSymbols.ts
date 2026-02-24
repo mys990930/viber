@@ -36,8 +36,8 @@ export function useSymbols(edgeId: string | null) {
 
     // Tauri mode: call backend
     const result = await invoke({ edgeId });
-    if (result) {
-      setSymbols(result.symbols);
+    if (result.ok && result.data) {
+      setSymbols(result.data.symbols);
     }
   }, [edgeId, invoke]);
 

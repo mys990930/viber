@@ -25,10 +25,10 @@
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
-| 1A-1 | ProjectService | BE | 프로젝트 열기, `.viber/` 초기화, 설정 로드 |
-| 1A-2 | FileWatcher | BE | notify 기반 파일 감시, FileEvent 발행 |
-| 1A-3 | ParserRegistry | BE | Tree-sitter 파서 등록 인프라 + Python 파서 |
-| 1A-4 | ProjectSelector UI | FE | 폴더 열기 다이얼로그, 프로젝트명 표시 |
+| 1A-1 | ProjectService | BE | 프로젝트 열기, `.viber/` 초기화, 설정 로드 |🚧
+| 1A-2 | FileWatcher | BE | notify 기반 파일 감시, FileEvent 발행 |✅
+| 1A-3 | ParserRegistry | BE | Tree-sitter 파서 등록 인프라 + Python 파서 |✅
+| 1A-4 | ProjectSelector UI | FE | 폴더 열기 다이얼로그, 프로젝트명 표시 |✅
 
 ### 1B. 의존성 그래프 (→ `modules/backend/graph.md`, `modules/frontend/graph.md`)
 
@@ -147,10 +147,10 @@
 
 | # | 작업 | 레이어 | 설명 |
 |---|------|--------|------|
-| 8-1 | TypeScript/JS 파서 | BE | import/require/export 파싱 |
-| 8-2 | C# 파서 | BE | using/namespace 파싱 |
-| 8-3 | Dart 파서 | BE | import/part 파싱 |
-| 8-4 | 자동 언어 감지 | BE | 프로젝트 루트 스캔 → 활성 언어 결정 |
+| 8-1 | TypeScript/JS 파서 | BE | import/require/export 파싱 |✅
+| 8-2 | C# 파서 | BE | using/namespace 파싱 |✅
+| 8-3 | Dart 파서 | BE | import/part 파싱 |✅
+| 8-4 | 자동 언어 감지 | BE | 프로젝트 루트 스캔 → 활성 언어 결정 |✅
 
 ---
 

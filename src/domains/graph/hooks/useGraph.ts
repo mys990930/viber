@@ -49,9 +49,9 @@ export function useGraph() {
 
     // Tauri: invoke command
     const res = await invoke({ depth: d });
-    if (res) {
-      setNodes(res.nodes);
-      setEdges(res.edges);
+    if (res.ok && res.data) {
+      setNodes(res.data.nodes);
+      setEdges(res.data.edges);
     }
   }, [invoke, setDepth, setEdges, setNodes]);
 

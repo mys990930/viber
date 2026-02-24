@@ -147,8 +147,8 @@ export function useProject() {
       return;
     }
     const items = await recentCmd.invoke();
-    if (items) {
-      setRecent(items);
+    if (items.ok && items.data) {
+      setRecent(items.data);
     }
   }, [isBrowserMode, recentCmd]);
 
@@ -158,8 +158,8 @@ export function useProject() {
       return;
     }
     const nextConfig = await getConfigCmd.invoke();
-    if (nextConfig) {
-      setConfig(nextConfig);
+    if (nextConfig.ok && nextConfig.data) {
+      setConfig(nextConfig.data);
     }
   }, [getConfigCmd, isBrowserMode, setConfig]);
 
@@ -180,9 +180,18 @@ export function useProject() {
           return;
         }
 
-        await validatePathCmd.invoke({ path });
+        const validResult = await validatePathCmd.invoke({ path });
+        if (!validResult.ok) {
+          setError(validResult.error);
+          return;
+        }
 
-        const nextInfo = await openCmd.invoke({ path });
+        const openResult = await openCmd.invoke({ path });
+        if (!openResult.ok) {
+          setError(openResult.error);
+          return;
+        }
+        const nextInfo = openResult.data;
         if (!nextInfo) return;
 
         setInfo(nextInfo);
@@ -248,8 +257,8 @@ export function useProject() {
         } else {
           // Tauri mode: use backend
           const nextConfig = await updateConfigCmd.invoke({ config: patch });
-          if (nextConfig) {
-            setConfig(nextConfig);
+          if (nextConfig.ok && nextConfig.data) {
+            setConfig(nextConfig.data);
           }
         }
       } catch (e: any) {
