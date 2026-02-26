@@ -145,16 +145,22 @@ function calculateDegrees(
 
 /**
  * Calculate node weights using the formula: w = α*out + β*in + γ*betweenness
+ * If shadowEdges are provided, they are included in degree/betweenness calculation
+ * but only weights for visible nodes are returned.
  */
 export function calculateNodeWeights(
   nodes: GraphNode[],
   edges: GraphEdge[],
   config: WeightConfig = WEIGHT_PRESETS[DEFAULT_PRESET],
+  shadowEdges?: GraphEdge[],
 ): NodeWeight[] {
   if (nodes.length === 0) return [];
 
-  const { inDegree, outDegree } = calculateDegrees(nodes, edges);
-  const betweenness = calculateBetweennessCentrality(nodes, edges);
+  // 가시 엣지 + shadow 엣지 합산 (모듈 가중치에 파일 엣지 반영)
+  const allEdges = shadowEdges ? [...edges, ...shadowEdges] : edges;
+
+  const { inDegree, outDegree } = calculateDegrees(nodes, allEdges);
+  const betweenness = calculateBetweennessCentrality(nodes, allEdges);
 
   // Calculate raw weights
   const weights: NodeWeight[] = nodes.map((node) => {
@@ -204,6 +210,62 @@ export function getTopHubs(
   const hubs = sorted.slice(0, n);
 
   return { hubs, n };
+}
+
+/**
+ * Project file-level edges onto module nodes as "shadow edges"
+ * for weight calculation. file:modules/user/router.py → file:core/security.py
+ * becomes module:modules/user → module:core (if not already a module edge).
+ */
+export function projectFileEdgesToModules(
+  allFileEdges: GraphEdge[],
+  moduleNodes: GraphNode[],
+): GraphEdge[] {
+  const moduleIds = new Set(moduleNodes.map((n) => n.id));
+  const shadowSet = new Set<string>();
+  const shadows: GraphEdge[] = [];
+
+  for (const edge of allFileEdges) {
+    if (edge.kind !== 'file_import') continue;
+
+    // file:modules/user/router.py → path = modules/user/router.py → module = modules/user
+    const srcModule = fileIdToModuleId(edge.source);
+    const tgtModule = fileIdToModuleId(edge.target);
+
+    if (!srcModule || !tgtModule) continue;
+    if (srcModule === tgtModule) continue; // intra-module
+    if (!moduleIds.has(srcModule) || !moduleIds.has(tgtModule)) continue;
+
+    const key = `${srcModule}->${tgtModule}`;
+    if (shadowSet.has(key)) {
+      // 중복 shadow edge → 기존 weight 증가 대신 count용 별도 edge
+      shadows.push({
+        id: `shadow:${key}:${shadowSet.size}`,
+        source: srcModule,
+        target: tgtModule,
+        kind: 'module_import',
+      });
+    } else {
+      shadowSet.add(key);
+      shadows.push({
+        id: `shadow:${key}`,
+        source: srcModule,
+        target: tgtModule,
+        kind: 'module_import',
+      });
+    }
+  }
+
+  return shadows;
+}
+
+/** file:modules/user/router.py → module:modules/user */
+function fileIdToModuleId(fileId: string): string | null {
+  if (!fileId.startsWith('file:')) return null;
+  const path = fileId.slice(5); // remove "file:"
+  const lastSlash = path.lastIndexOf('/');
+  if (lastSlash < 0) return 'module:.';
+  return `module:${path.slice(0, lastSlash)}`;
 }
 
 /**

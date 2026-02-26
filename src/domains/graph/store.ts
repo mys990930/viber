@@ -9,6 +9,7 @@ interface GraphStore {
   // State
   nodes: GraphNode[];
   edges: GraphEdge[];
+  allFileEdges: GraphEdge[];  // 전체 파일 엣지 (가중치 계산용)
   depth: GraphDepth;
   expandedModules: Set<string>;
   selectedNode: string | null;
@@ -41,6 +42,7 @@ interface GraphStore {
 
   setNodes: (nodes: GraphNode[]) => void;
   setEdges: (edges: GraphEdge[]) => void;
+  setAllFileEdges: (edges: GraphEdge[]) => void;
 
   // Lazy loading actions
   addExpandedModule: (modulePath: string) => void;
@@ -57,6 +59,7 @@ interface GraphStore {
 export const useGraphStore = create<GraphStore>((set) => ({
   nodes: [],
   edges: [],
+  allFileEdges: [],
   depth: 'modules',
   expandedModules: new Set<string>(),
   selectedNode: null,
@@ -147,6 +150,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
 
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
+  setAllFileEdges: (allFileEdges) => set({ allFileEdges }),
 
   // Lazy loading
   addExpandedModule: (modulePath) =>

@@ -12,6 +12,7 @@ export { NodeDetail } from './components/NodeDetail';
 export { EdgeDetail } from './components/EdgeDetail';
 export {
   calculateNodeWeights,
+projectFileEdgesToModules,
   getTopHubs,
   getNodeSize,
   WEIGHT_PRESETS,

@@ -292,38 +292,63 @@ export function useCytoscape(options: UseCytoscapeOptions) {
     const cy = cyRef.current;
     if (!cy) return;
 
-    // Build elements array
-    const nodeElements = options.nodes.map((node) => {
-      const weight = nodeWeightMapRef.current.get(node.id);
+    // ─── Diff-based element update ───
+    const existingNodeIds = new Set<string>();
+    const existingEdgeIds = new Set<string>();
+    cy.nodes().forEach((n) => { existingNodeIds.add(n.id()); });
+    cy.edges().forEach((e) => { existingEdgeIds.add(e.id()); });
 
-      return {
-        data: {
-          id: node.id,
-          label: node.label,
-          type: node.type,
-          path: node.path,
-          language: node.language,
-          weight: weight?.normalizedWeight || 0,
-        },
-        classes: node.type,
-      };
+    const desiredNodeIds = new Set(options.nodes.map((n) => n.id));
+    const desiredEdgeIds = new Set(options.edges.map((e) => e.id));
+
+    // Remove nodes/edges that are no longer desired
+    const toRemove = cy.elements().filter((ele) => {
+      const id = ele.id();
+      return ele.isNode() ? !desiredNodeIds.has(id) : !desiredEdgeIds.has(id);
     });
 
-    const edgeElements = options.edges.map((edge) => ({
-      data: {
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        kind: edge.kind,
-      },
-      classes: edge.kind,
-    }));
+    // Add new nodes
+    const newNodeElements: any[] = [];
+    for (const node of options.nodes) {
+      if (!existingNodeIds.has(node.id)) {
+        const weight = nodeWeightMapRef.current.get(node.id);
+        newNodeElements.push({
+          data: {
+            id: node.id,
+            label: node.label,
+            type: node.type,
+            path: node.path,
+            language: node.language,
+            weight: weight?.normalizedWeight || 0,
+          },
+          classes: node.type,
+        });
+      }
+    }
 
-    // Replace all elements
-    cy.elements().remove();
-    cy.add([...nodeElements, ...edgeElements]);
+    // Add new edges
+    const newEdgeElements: any[] = [];
+    for (const edge of options.edges) {
+      if (!existingEdgeIds.has(edge.id)) {
+        newEdgeElements.push({
+          data: {
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            kind: edge.kind,
+          },
+          classes: edge.kind,
+        });
+      }
+    }
 
-    // Apply dynamic sizes based on weights
+    const isIncremental = toRemove.length === 0 && newNodeElements.length > 0
+      && newNodeElements.length < options.nodes.length;
+
+    toRemove.remove();
+    const addedEles = cy.add([...newNodeElements, ...newEdgeElements]);
+
+    // Apply dynamic sizes to ALL nodes (weights may have changed)
     if (options.nodeWeights && options.nodeWeights.length > 0) {
       options.nodes.forEach((node) => {
         const weight = nodeWeightMapRef.current.get(node.id);
@@ -337,10 +362,46 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       });
     }
 
-    // Run layout based on view mode
-    const viewMode = options.viewMode || 'overview';
+    // ─── Layout ───
+    if (isIncremental && addedEles.length > 0) {
+      // Incremental: position new file nodes near their parent module
+      const addedNodes = addedEles.nodes();
+      addedNodes.forEach((fileNode) => {
+        const parentEdge = addedEles.edges().filter((e) => e.target().id() === fileNode.id());
+        const parentId = parentEdge.length > 0 ? parentEdge[0].source().id() : null;
+        const parentNode = parentId ? cy.getElementById(parentId) : null;
 
-    if (viewMode === 'overview') {
+        if (parentNode && parentNode.length > 0) {
+          const pos = parentNode.position();
+          // Fan out around parent
+          const angle = Math.random() * Math.PI * 2;
+          const radius = 80 + Math.random() * 40;
+          fileNode.position({
+            x: pos.x + Math.cos(angle) * radius,
+            y: pos.y + Math.sin(angle) * radius,
+          });
+        }
+      });
+
+      // Run local layout only on added nodes + their neighborhood
+      const neighborhood = addedNodes.neighborhood().union(addedNodes);
+      neighborhood.layout({
+        name: 'concentric',
+        concentric: (node: any) => {
+          const weight = nodeWeightMapRef.current.get(node.id());
+          return weight?.normalizedWeight || 0;
+        },
+        levelWidth: () => 0.8,
+        animate: true,
+        animationDuration: 400,
+        padding: 20,
+        fit: false,  // 전체 뷰 이동 방지
+      } as any).run();
+    } else if (!isIncremental) {
+      // Full layout (initial load or depth change)
+      const viewMode = options.viewMode || 'overview';
+
+      if (viewMode === 'overview') {
       // Overview mode: Concentric layout with hubs in center
       const layout = cy.layout({
         name: 'concentric',
@@ -404,6 +465,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         });
       }
     }
+    } // end else if (!isIncremental)
   }, [options.nodes, options.edges, options.nodeWeights, options.viewMode]);
 
   // Fit to viewport

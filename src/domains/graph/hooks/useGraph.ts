@@ -3,7 +3,7 @@ import { useGraphStore } from '../store';
 import { useProjectStore } from '../../project/store';
 import { useTauriCommand, useTauriEvent } from '../../shell';
 import type { GraphData, GraphDepth } from '../../../shared/types/graph';
-import { getMockGraphByDepth, getMockExpandModule } from '../mock/graph';
+import { getMockGraphByDepth, getMockExpandModule, mockEdges } from '../mock/graph';
 
 function isTauri(): boolean {
   if (typeof window === 'undefined') return false;
@@ -28,6 +28,7 @@ export function useGraph() {
     toggleFloating,
     setNodes,
     setEdges,
+    setAllFileEdges,
     addExpandedModule,
     removeExpandedModule,
     mergeFileNodes,
@@ -50,6 +51,8 @@ export function useGraph() {
       const mock = getMockGraphByDepth(d);
       setNodes(mock.nodes);
       setEdges(mock.edges);
+      // 가중치 계산용: 전체 파일 엣지
+      setAllFileEdges(mockEdges.filter((e) => e.kind === 'file_import'));
       return;
     }
 
@@ -99,6 +102,7 @@ export function useGraph() {
     const mock = getMockGraphByDepth(depth);
     setNodes(mock.nodes);
     setEdges(mock.edges);
+    setAllFileEdges(mockEdges.filter((e) => e.kind === 'file_import'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

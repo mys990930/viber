@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useGraphStore, calculateNodeWeights, WEIGHT_PRESETS } from '..';
+import { useGraphStore, calculateNodeWeights, projectFileEdgesToModules, WEIGHT_PRESETS } from '..';
 import { useGraph } from '../hooks/useGraph';
 import { useCytoscape } from '../hooks/useCytoscape';
 import { ViewModeToggle } from './ViewModeToggle';
@@ -23,18 +23,22 @@ export function GraphCanvas() {
   const weightPreset = useGraphStore((s) => s.weightPreset);
   const setNodeWeights = useGraphStore((s) => s.setNodeWeights);
   const nodeWeights = useGraphStore((s) => s.nodeWeights);
+  const allFileEdges = useGraphStore((s) => s.allFileEdges);
 
-  // Calculate node weights when nodes, edges, or preset changes
+  // Calculate node weights — include file edges projected onto modules
   useEffect(() => {
     if (nodes.length === 0 || edges.length === 0) {
       setNodeWeights([]);
       return;
     }
 
+    const moduleNodes = nodes.filter((n) => n.type === 'module' || n.type === 'package');
+    const shadowEdges = projectFileEdgesToModules(allFileEdges, moduleNodes);
+
     const config = WEIGHT_PRESETS[weightPreset];
-    const weights = calculateNodeWeights(nodes, edges, config);
+    const weights = calculateNodeWeights(nodes, edges, config, shadowEdges);
     setNodeWeights(weights);
-  }, [nodes, edges, weightPreset, setNodeWeights]);
+  }, [nodes, edges, allFileEdges, weightPreset, setNodeWeights]);
 
   const {
     containerRef,
