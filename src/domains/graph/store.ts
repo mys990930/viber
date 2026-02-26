@@ -165,9 +165,16 @@ export const useGraphStore = create<GraphStore>((set) => ({
     set((state) => {
       const existingIds = new Set(state.nodes.map((n) => n.id));
       const existingEdgeIds = new Set(state.edges.map((e) => e.id));
+      const addedNodes = newNodes.filter((n) => !existingIds.has(n.id));
+      // 추가 후 전체 노드 ID
+      const allIds = new Set([...existingIds, ...addedNodes.map((n) => n.id)]);
+      // 양쪽 끝이 모두 그래프에 존재하는 엣지만 추가
+      const addedEdges = newEdges.filter(
+        (e) => !existingEdgeIds.has(e.id) && allIds.has(e.source) && allIds.has(e.target),
+      );
       return {
-        nodes: [...state.nodes, ...newNodes.filter((n) => !existingIds.has(n.id))],
-        edges: [...state.edges, ...newEdges.filter((e) => !existingEdgeIds.has(e.id))],
+        nodes: [...state.nodes, ...addedNodes],
+        edges: [...state.edges, ...addedEdges],
       };
     }),
   removeFileNodes: (modulePath) =>
