@@ -32,7 +32,7 @@ impl LanguageParser for GoParser {
             if in_import_block {
                 if let Some(source_str) = extract_go_string(trimmed) {
                     imports.push(ImportInfo {
-                        is_external: is_external_go(&source_str),
+                        is_side_effect: false, is_external: is_external_go(&source_str),
                         source: source_str,
                         symbols: Vec::new(),
                         line: line_no,
@@ -45,7 +45,7 @@ impl LanguageParser for GoParser {
             if let Some(rest) = trimmed.strip_prefix("import ") {
                 if let Some(source_str) = extract_go_string(rest) {
                     imports.push(ImportInfo {
-                        is_external: is_external_go(&source_str),
+                        is_side_effect: false, is_external: is_external_go(&source_str),
                         source: source_str,
                         symbols: Vec::new(),
                         line: line_no,

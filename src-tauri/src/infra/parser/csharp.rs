@@ -48,7 +48,7 @@ impl LanguageParser for CSharpParser {
             }
 
             imports.push(ImportInfo {
-                is_external: is_external_csharp(&source_str),
+                is_side_effect: false, is_external: is_external_csharp(&source_str),
                 source: source_str,
                 symbols: Vec::new(),
                 line: line_no,

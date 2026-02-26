@@ -196,7 +196,7 @@ fn parse_es_import(line: &str, line_no: usize) -> Option<ImportInfo> {
     if let Some(source) = extract_string_after(stripped, "from ") {
         let symbols = extract_named_imports(stripped);
         return Some(ImportInfo {
-            is_external: is_external_ts(&source),
+            is_side_effect: false, is_external: is_external_ts(&source),
             source,
             symbols,
             line: line_no,
@@ -208,7 +208,7 @@ fn parse_es_import(line: &str, line_no: usize) -> Option<ImportInfo> {
         return Some(ImportInfo {
             source,
             symbols: Vec::new(),
-            is_external: true,
+            is_side_effect: false, is_external: true,
             line: line_no,
         });
     }
@@ -222,7 +222,7 @@ fn parse_require(line: &str, line_no: usize) -> Option<ImportInfo> {
     let rest = &line[idx + 8..];
     let source = extract_first_string(rest)?;
     Some(ImportInfo {
-        is_external: is_external_ts(&source),
+        is_side_effect: false, is_external: is_external_ts(&source),
         source,
         symbols: Vec::new(),
         line: line_no,

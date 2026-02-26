@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use git2::{BranchType, Repository, Signature, Status, StatusOptions};
 
@@ -24,19 +24,7 @@ impl GitService {
             .and_then(|h| h.shorthand().map(|s| s.to_string()))
             .unwrap_or_else(|| "HEAD".to_string());
 
-        let (ahead, behind) = match repo.head() {
-            Ok(head) => {
-                if let Ok(upstream) = head.resolve().and_then(|h| h.upstream()) {
-                    match (head.target(), upstream.target()) {
-                        (Some(local), Some(remote)) => repo.graph_ahead_behind(local, remote).unwrap_or((0, 0)),
-                        _ => (0, 0),
-                    }
-                } else {
-                    (0, 0)
-                }
-            }
-            Err(_) => (0, 0),
-        };
+        let (ahead, behind) = (0, 0);
 
         let mut opts = StatusOptions::new();
         opts.include_untracked(true)

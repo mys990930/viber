@@ -6,6 +6,7 @@ use std::sync::Mutex;
 
 use tauri::{Emitter, Manager};
 
+use domain::git::GitService;
 use domain::graph::GraphService;
 use domain::project::ProjectService;
 use infra::parser::ParserRegistry;
@@ -20,6 +21,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(Mutex::new(ProjectService::new(event_bus.clone())))
         .manage(Mutex::new(GraphService::new(event_bus.clone())))
+        .manage(Mutex::new(GitService::new(event_bus.clone())))
         .manage(Mutex::new(ParserRegistry::default()))
         .manage(event_bus)
         .setup(|app| {
@@ -85,6 +87,10 @@ pub fn run() {
             domain::graph::commands::graph_get,
             domain::graph::commands::graph_expand_module,
             domain::graph::commands::graph_collapse_module,
+            domain::git::commands::git_status,
+            domain::git::commands::git_stage,
+            domain::git::commands::git_unstage,
+            domain::git::commands::git_commit,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -14,9 +14,14 @@ impl LanguageParser for PythonParser {
         for (index, line) in source.lines().enumerate() {
             let line_no = index + 1;
             let trimmed = line.trim();
+            let is_side_effect = trimmed.contains("# noqa: F401")
+                || trimmed.contains("# noqa:F401")
+                || trimmed.contains("# type: ignore");
 
             if let Some(rest) = trimmed.strip_prefix("import ") {
-                for module in rest.split(',').map(str::trim).filter(|s| !s.is_empty()) {
+                // Strip inline comments before parsing
+                let rest_no_comment = rest.split('#').next().unwrap_or(rest).trim();
+                for module in rest_no_comment.split(',').map(str::trim).filter(|s| !s.is_empty()) {
                     let source = module
                         .split_whitespace()
                         .next()
@@ -26,6 +31,7 @@ impl LanguageParser for PythonParser {
                         source: source.clone(),
                         symbols: Vec::new(),
                         is_external: !source.starts_with('.'),
+                        is_side_effect,
                         line: line_no,
                     });
                 }
@@ -41,7 +47,9 @@ impl LanguageParser for PythonParser {
                     continue;
                 }
 
-                let symbols = symbols_part
+                // Strip inline comments from symbols
+                let symbols_no_comment = symbols_part.split('#').next().unwrap_or(symbols_part).trim();
+                let symbols = symbols_no_comment
                     .split(',')
                     .map(str::trim)
                     .map(|symbol| symbol.split_whitespace().next().unwrap_or(symbol))
@@ -53,6 +61,7 @@ impl LanguageParser for PythonParser {
                     source: module.to_string(),
                     symbols,
                     is_external: !module.starts_with('.'),
+                    is_side_effect,
                     line: line_no,
                 });
             }

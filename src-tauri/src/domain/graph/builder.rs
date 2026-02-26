@@ -275,23 +275,33 @@ pub fn build_graph_with_config(
                 let target_id = resolve_import(&import.source, &module_name_to_file_id, relative);
                 if let Some(target_id) = target_id {
                     if target_id == source_id { continue; } // skip self-imports
-                    let edge_id = format!("file_import:{source_id}->{target_id}");
+
+                    let edge_kind = if import.is_side_effect {
+                        EdgeKind::SideEffectImport
+                    } else {
+                        EdgeKind::FileImport
+                    };
+                    let prefix = if import.is_side_effect { "side_effect" } else { "file_import" };
+                    let edge_id = format!("{prefix}:{source_id}->{target_id}");
+
                     if seen_import_edges.insert(edge_id.clone()) {
                         edges.push(GraphEdge {
                             id: edge_id,
                             source: source_id.clone(),
                             target: target_id.clone(),
-                            kind: EdgeKind::FileImport,
+                            kind: edge_kind,
                         });
 
-                        // Track module-level import for module_import edges
-                        let target_relative = target_id.strip_prefix("file:").unwrap_or("");
-                        let target_module = get_module_id(
-                            Path::new(target_relative),
-                            &root_module_id,
-                        );
-                        if source_module != target_module {
-                            module_import_pairs.insert((source_module.clone(), target_module));
+                        // Track module-level import (skip side-effect for module edges)
+                        if !import.is_side_effect {
+                            let target_relative = target_id.strip_prefix("file:").unwrap_or("");
+                            let target_module = get_module_id(
+                                Path::new(target_relative),
+                                &root_module_id,
+                            );
+                            if source_module != target_module {
+                                module_import_pairs.insert((source_module.clone(), target_module));
+                            }
                         }
                     }
                 }

@@ -14,7 +14,7 @@ export interface GraphNode {
 
 // ─── Edge ───
 
-export type EdgeKind = 'package_dep' | 'module_import' | 'file_import' | 'contains';
+export type EdgeKind = 'package_dep' | 'module_import' | 'file_import' | 'side_effect_import' | 'contains';
 
 export interface GraphEdge {
   id: string;

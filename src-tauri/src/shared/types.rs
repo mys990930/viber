@@ -72,6 +72,7 @@ pub enum EdgeKind {
     PackageDep,
     ModuleImport,
     FileImport,
+    SideEffectImport,
     Contains,
 }
 
@@ -111,6 +112,7 @@ pub struct ImportInfo {
     pub source: String,
     pub symbols: Vec<String>,
     pub is_external: bool,
+    pub is_side_effect: bool,
     pub line: usize,
 }
 

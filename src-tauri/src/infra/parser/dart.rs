@@ -61,6 +61,7 @@ impl LanguageParser for DartParser {
                 source: source_str,
                 symbols,
                 is_external,
+                is_side_effect: false,
                 line: line_no,
             });
         }

@@ -69,6 +69,7 @@ impl LanguageParser for RustParser {
                 source: base,
                 symbols,
                 is_external,
+                is_side_effect: false,
                 line: line_no,
             });
         }
