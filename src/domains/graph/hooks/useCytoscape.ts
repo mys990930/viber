@@ -43,7 +43,6 @@ function getLayer(path?: string): LayerType {
   if (LAYER_PATTERNS.domain.test(path)) return 'domain';
   return 'domain'; // Default to middle layer
 }
-
 /**
  * Analyze edge directions to determine layer order
  * Returns true if more edges flow from Infra -> UI (bottom-up)
@@ -120,7 +119,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'font-size': '12px',
             'text-valign': 'center',
             'text-halign': 'center',
-            'shape': 'roundrectangle',
+            'shape': 'ellipse',
           },
         },
         // Package nodes
@@ -240,6 +239,44 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'target-arrow-color': '#e94560',
           },
         },
+        // External nodes - dimmed state (default)
+        {
+          selector: 'node.external',
+          style: {
+            'background-color': '#2a2a3e',
+            'border-color': '#444466',
+            'color': '#666688',
+            'opacity': 0.4,
+          },
+        },
+        // External edges - dimmed state
+        {
+          selector: 'edge.external',
+          style: {
+            'line-color': '#444466',
+            'target-arrow-color': '#444466',
+            'opacity': 0.3,
+          },
+        },
+        // External nodes - visible state
+        {
+          selector: 'node.external.visible',
+          style: {
+            'background-color': '#3a3a5e',
+            'border-color': '#666699',
+            'color': '#aaaacc',
+            'opacity': 0.9,
+          },
+        },
+        // External edges - visible state
+        {
+          selector: 'edge.external.visible',
+          style: {
+            'line-color': '#666699',
+            'target-arrow-color': '#666699',
+            'opacity': 0.7,
+          },
+        },
       ],
       minZoom: 0.1,
       maxZoom: 3,
@@ -286,6 +323,8 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       cyRef.current = null;
     };
   }, []);
+
+  // Update elements when nodes/edges change
 
   // Update elements when nodes/edges change
   useEffect(() => {
@@ -373,9 +412,12 @@ export function useCytoscape(options: UseCytoscapeOptions) {
 
         if (parentNode && parentNode.length > 0) {
           const pos = parentNode.position();
-          // Fan out around parent
+          const parentWeight = parentId ? nodeWeightMapRef.current.get(parentId) : undefined;
+          const weightFactor = 0.5 + (parentWeight?.normalizedWeight || 0.5);
           const angle = Math.random() * Math.PI * 2;
-          const radius = 80 + Math.random() * 40;
+          const baseRadius = 100 * weightFactor;
+          const radius = baseRadius + Math.random() * 60 * weightFactor;
+
           fileNode.position({
             x: pos.x + Math.cos(angle) * radius,
             y: pos.y + Math.sin(angle) * radius,
@@ -383,7 +425,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         }
       });
 
-      // Run local layout only on added nodes + their neighborhood
+      // Local layout on added nodes + neighborhood
       const neighborhood = addedNodes.neighborhood().union(addedNodes);
       neighborhood.layout({
         name: 'concentric',
@@ -395,78 +437,58 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         animate: true,
         animationDuration: 400,
         padding: 20,
-        fit: false,  // 전체 뷰 이동 방지
+        fit: false,
       } as any).run();
     } else if (!isIncremental) {
       // Full layout (initial load or depth change)
       const viewMode = options.viewMode || 'overview';
 
       if (viewMode === 'overview') {
-      // Overview mode: Concentric layout with hubs in center
-      const layout = cy.layout({
-        name: 'concentric',
-        concentric: (node: any) => {
-          const weight = nodeWeightMapRef.current.get(node.id());
-          // Higher weight = inner circle
-          return weight?.normalizedWeight || 0;
-        },
-        levelWidth: () => 0.5,
-        animate: true,
-        animationDuration: 500,
-        padding: 50,
-        fit: true,
-      } as any);
-
-      layout.run();
-    } else {
-      // Architecture mode: Grid layout with layer-based positioning
-      const nodeLayerMap = new Map<string, LayerType>();
-      options.nodes.forEach((node) => {
-        nodeLayerMap.set(node.id, getLayer(node.path));
-      });
-
-      // Determine layer order based on edge analysis
-      const isBottomUp = analyzeEdgeDirection(options.edges, nodeLayerMap);
-
-      // Layer Y positions (top to bottom on screen)
-      const layerYPositions = isBottomUp
-        ? { ui: 100, app: 300, domain: 500, infra: 700 }
-        : { infra: 100, domain: 300, app: 500, ui: 700 };
-
-      if (cy.nodes().length > 0) {
-        // First, run a grid layout to get initial positions
-        const gridLayout = cy.layout({
-          name: 'grid',
+        const layout = cy.layout({
+          name: 'cose-bilkent',
+          animate: true,
+          animationDuration: 500,
+          randomize: true,
+          componentSpacing: 120,
+          nodeRepulsion: 8000,
+          edgeElasticity: 0.3,
+          nestingFactor: 0.8,
+          gravity: 0.1,
+          numIter: 2500,
+          tile: false,
+          gravityRange: 4,
+          initialEnergyOnIncremental: 0.5,
           fit: true,
-          padding: 30,
-          animate: false,
-        });
-        gridLayout.run();
-
-        // Then, manually adjust Y positions based on layers
-        (cy.nodes() as any).positions((node: any) => {
-          const layer = getLayer(node.data('path'));
-          const currentPos = node.position();
-          const targetY = layerYPositions[layer];
-
-          return {
-            x: currentPos.x,
-            y: targetY,
-          };
+          padding: 50,
+        } as any);
+        layout.run();
+      } else {
+        // Architecture mode: Grid + layer-based Y
+        const nodeLayerMap = new Map<string, LayerType>();
+        options.nodes.forEach((node) => {
+          nodeLayerMap.set(node.id, getLayer(node.path));
         });
 
-        // Animate to new positions
-        cy.animate({
-          fit: {
-            eles: cy.nodes(),
-            padding: 50,
-          },
-          duration: 500,
-        });
+        const isBottomUp = analyzeEdgeDirection(options.edges, nodeLayerMap);
+        const layerYPositions = isBottomUp
+          ? { ui: 100, app: 300, domain: 500, infra: 700 }
+          : { infra: 100, domain: 300, app: 500, ui: 700 };
+
+        if (cy.nodes().length > 0) {
+          cy.layout({ name: 'grid', fit: true, padding: 30, animate: false }).run();
+
+          (cy.nodes() as any).positions((node: any) => {
+            const layer = getLayer(node.data('path'));
+            const currentPos = node.position();
+            return { x: currentPos.x, y: layerYPositions[layer] };
+          });
+
+          cy.animate({ fit: { eles: cy.nodes(), padding: 50 }, duration: 500 });
+        }
       }
     }
-    } // end else if (!isIncremental)
   }, [options.nodes, options.edges, options.nodeWeights, options.viewMode]);
+
 
   // Fit to viewport
   const fit = useCallback(() => {

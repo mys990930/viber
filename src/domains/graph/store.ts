@@ -4,6 +4,7 @@ import type { NodeWeight } from './utils/weight';
 
 export type ViewMode = 'overview' | 'architecture';
 export type WeightPreset = 'balanced' | 'influence' | 'dependency';
+export type ExternalMode = 'hidden' | 'dim' | 'visible';
 
 interface GraphStore {
   // State
@@ -15,7 +16,7 @@ interface GraphStore {
   selectedNode: string | null;
   hoveredNode: string | null;
   hoveredEdge: string | null;
-  showExternal: boolean;
+  externalMode: ExternalMode;
   floatingEnabled: boolean;
   nodeClasses: Record<string, string[]>;
   edgeClasses: Record<string, string[]>;
@@ -54,6 +55,7 @@ interface GraphStore {
   setViewMode: (mode: ViewMode) => void;
   setWeightPreset: (preset: WeightPreset) => void;
   setNodeWeights: (weights: NodeWeight[]) => void;
+  setExternalMode: (mode: ExternalMode) => void;
 }
 
 export const useGraphStore = create<GraphStore>((set) => ({
@@ -65,7 +67,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
   selectedNode: null,
   hoveredNode: null,
   hoveredEdge: null,
-  showExternal: false,
+  externalMode: 'hidden',
   floatingEnabled: false,
   nodeClasses: {},
   edgeClasses: {},
@@ -97,7 +99,12 @@ export const useGraphStore = create<GraphStore>((set) => ({
       return { nodes: nodesAfterUpdate, edges: edgesAfterAdd };
     }),
 
-  toggleExternal: () => set((state) => ({ showExternal: !state.showExternal })),
+  toggleExternal: () => set((state) => {
+    const modes: ExternalMode[] = ['hidden', 'dim', 'visible'];
+    const currentIndex = modes.indexOf(state.externalMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    return { externalMode: nextMode };
+  }),
   toggleFloating: () => set((state) => ({ floatingEnabled: !state.floatingEnabled })),
 
   addNodeClass: (nodeId, cls) =>
@@ -200,6 +207,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
   setViewMode: (viewMode) => set({ viewMode }),
   setWeightPreset: (weightPreset) => set({ weightPreset }),
   setNodeWeights: (nodeWeights) => set({ nodeWeights }),
+  setExternalMode: (externalMode) => set({ externalMode }),
 }));
 
 export default useGraphStore;

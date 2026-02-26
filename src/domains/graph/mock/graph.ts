@@ -4,6 +4,9 @@ import type { GraphDepth } from '../../../shared/types/graph';
 /**
  * Mock graph data for browser development (without Tauri backend)
  * Based on barber.io — FastAPI game backend (Python)
+ *
+ * 변경: modules 내부 cross-module 의존성 제거 (alembic으로 모델 집약 이전)
+ *       alembic/ 폴더를 외부 의존성(infra)으로 취급
  */
 
 // ─── Helper ───
@@ -11,14 +14,15 @@ const py = (_id: string, label: string, path: string): GraphNode => ({
   id: `file:${path}`, type: 'file', label, path, language: 'python',
 });
 
-// ─── Packages (외부 의존성) ───
+// ─── Packages (외부 의존성 — 라이브러리 + infra 폴더) ───
 const packages: GraphNode[] = [
   { id: 'package:fastapi', type: 'package', label: 'fastapi' },
   { id: 'package:sqlalchemy', type: 'package', label: 'sqlalchemy' },
   { id: 'package:jose', type: 'package', label: 'python-jose' },
   { id: 'package:google-auth', type: 'package', label: 'google-auth' },
-  { id: 'package:alembic', type: 'package', label: 'alembic' },
   { id: 'package:pymysql', type: 'package', label: 'pymysql' },
+  // alembic: 외부 라이브러리 기반 infra 폴더 → 패키지로 취급
+  { id: 'package:alembic', type: 'package', label: 'alembic' },
 ];
 
 // ─── Modules (디렉토리 구조) ───
@@ -37,10 +41,9 @@ const modules: GraphNode[] = [
   { id: 'module:modules/misc', type: 'module', label: 'misc', path: 'modules/misc', language: 'python' },
   { id: 'module:modules/user_event_log', type: 'module', label: 'user_event_log', path: 'modules/user_event_log', language: 'python' },
   { id: 'module:tests', type: 'module', label: 'tests', path: 'tests', language: 'python' },
-  { id: 'module:alembic', type: 'module', label: 'alembic', path: 'alembic', language: 'python' },
 ];
 
-// ─── Files (모든 모듈에 파일 포함) ───
+// ─── Files ───
 const files: GraphNode[] = [
   // root
   py('main', 'main.py', 'main.py'),
@@ -105,10 +108,6 @@ const files: GraphNode[] = [
   py('tests:conftest', 'conftest.py', 'tests/conftest.py'),
   py('tests:test_user', 'test_user.py', 'tests/test_user.py'),
   py('tests:test_gacha', 'test_gacha.py', 'tests/test_gacha.py'),
-  // alembic
-  py('alembic:env', 'env.py', 'alembic/env.py'),
-  // modules 직속 — 모든 서브모듈 모델 집약
-  py('modules:models', 'models.py', 'modules/models.py'),
 ];
 
 // ─── Package Dependencies ───
@@ -117,13 +116,13 @@ const packageEdges: GraphEdge[] = [
   { id: 'pkgdep:root->sqlalchemy', source: 'module:.', target: 'package:sqlalchemy', kind: 'package_dep' },
   { id: 'pkgdep:root->jose', source: 'module:.', target: 'package:jose', kind: 'package_dep' },
   { id: 'pkgdep:root->google-auth', source: 'module:.', target: 'package:google-auth', kind: 'package_dep' },
-  { id: 'pkgdep:root->alembic', source: 'module:.', target: 'package:alembic', kind: 'package_dep' },
   { id: 'pkgdep:root->pymysql', source: 'module:.', target: 'package:pymysql', kind: 'package_dep' },
+  { id: 'pkgdep:root->alembic', source: 'module:.', target: 'package:alembic', kind: 'package_dep' },
 ];
 
-// ─── Module Imports (cross-module dependencies) ───
+// ─── Module Imports ───
 const moduleEdges: GraphEdge[] = [
-  // modules → core 의존
+  // 각 모듈 → core (독립적)
   { id: 'modimp:user->core', source: 'module:modules/user', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:gacha->core', source: 'module:modules/gacha', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:shop->core', source: 'module:modules/shop', target: 'module:core', kind: 'module_import' },
@@ -131,19 +130,13 @@ const moduleEdges: GraphEdge[] = [
   { id: 'modimp:admin->core', source: 'module:modules/admin', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:admin_auth->core', source: 'module:modules/admin_auth', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:notice->core', source: 'module:modules/notice', target: 'module:core', kind: 'module_import' },
-  // cross-module
-  { id: 'modimp:gacha->user', source: 'module:modules/gacha', target: 'module:modules/user', kind: 'module_import' },
-  { id: 'modimp:shop->user', source: 'module:modules/shop', target: 'module:modules/user', kind: 'module_import' },
-  { id: 'modimp:shop->gacha', source: 'module:modules/shop', target: 'module:modules/gacha', kind: 'module_import' },
-  { id: 'modimp:ranking->user', source: 'module:modules/ranking', target: 'module:modules/user', kind: 'module_import' },
-  { id: 'modimp:ranking->event', source: 'module:modules/ranking', target: 'module:modules/event', kind: 'module_import' },
-  { id: 'modimp:misc->gacha', source: 'module:modules/misc', target: 'module:modules/gacha', kind: 'module_import' },
-  { id: 'modimp:user_event_log->user', source: 'module:modules/user_event_log', target: 'module:modules/user', kind: 'module_import' },
-  // 계층: root → core, modules
+  { id: 'modimp:ranking->core', source: 'module:modules/ranking', target: 'module:core', kind: 'module_import' },
+  { id: 'modimp:misc->core', source: 'module:modules/misc', target: 'module:core', kind: 'module_import' },
+  { id: 'modimp:uel->core', source: 'module:modules/user_event_log', target: 'module:core', kind: 'module_import' },
+  // 계층: root → core, modules, tests
   { id: 'modimp:root->core', source: 'module:.', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:root->modules', source: 'module:.', target: 'module:modules', kind: 'module_import' },
   { id: 'modimp:root->tests', source: 'module:.', target: 'module:tests', kind: 'module_import' },
-  { id: 'modimp:root->alembic', source: 'module:.', target: 'module:alembic', kind: 'module_import' },
   // modules → sub-modules
   { id: 'modimp:modules->user', source: 'module:modules', target: 'module:modules/user', kind: 'module_import' },
   { id: 'modimp:modules->gacha', source: 'module:modules', target: 'module:modules/gacha', kind: 'module_import' },
@@ -155,25 +148,25 @@ const moduleEdges: GraphEdge[] = [
   { id: 'modimp:modules->admin_auth', source: 'module:modules', target: 'module:modules/admin_auth', kind: 'module_import' },
   { id: 'modimp:modules->misc', source: 'module:modules', target: 'module:modules/misc', kind: 'module_import' },
   { id: 'modimp:modules->user_event_log', source: 'module:modules', target: 'module:modules/user_event_log', kind: 'module_import' },
+  // cross-module 의존성 없음 — alembic이 모델 집약 담당 (외부 패키지로 표시)
 ];
 
 // ─── File Imports ───
 const fileEdges: GraphEdge[] = [
-  // user: layered
+  // user: layered (모듈 내부만)
   { id: 'fi:user:r->s', source: 'file:modules/user/router.py', target: 'file:modules/user/service.py', kind: 'file_import' },
   { id: 'fi:user:s->rp', source: 'file:modules/user/service.py', target: 'file:modules/user/repository.py', kind: 'file_import' },
   { id: 'fi:user:rp->m', source: 'file:modules/user/repository.py', target: 'file:modules/user/models.py', kind: 'file_import' },
   { id: 'fi:user:r->sc', source: 'file:modules/user/router.py', target: 'file:modules/user/schemas.py', kind: 'file_import' },
-  // gacha: layered
+  // gacha
   { id: 'fi:gacha:r->s', source: 'file:modules/gacha/router.py', target: 'file:modules/gacha/service.py', kind: 'file_import' },
   { id: 'fi:gacha:s->rp', source: 'file:modules/gacha/service.py', target: 'file:modules/gacha/repository.py', kind: 'file_import' },
   { id: 'fi:gacha:rp->m', source: 'file:modules/gacha/repository.py', target: 'file:modules/gacha/models.py', kind: 'file_import' },
   { id: 'fi:gacha:r->sc', source: 'file:modules/gacha/router.py', target: 'file:modules/gacha/schemas.py', kind: 'file_import' },
-  // shop: layered + cross-module
+  // shop (모듈 내부만 — cross-module 의존성 제거됨)
   { id: 'fi:shop:r->s', source: 'file:modules/shop/router.py', target: 'file:modules/shop/service.py', kind: 'file_import' },
   { id: 'fi:shop:s->rp', source: 'file:modules/shop/service.py', target: 'file:modules/shop/repository.py', kind: 'file_import' },
   { id: 'fi:shop:rp->m', source: 'file:modules/shop/repository.py', target: 'file:modules/shop/models.py', kind: 'file_import' },
-  { id: 'fi:shop:s->user_rp', source: 'file:modules/shop/service.py', target: 'file:modules/user/repository.py', kind: 'file_import' },
   // event
   { id: 'fi:event:s->rp', source: 'file:modules/event/service.py', target: 'file:modules/event/repository.py', kind: 'file_import' },
   { id: 'fi:event:rp->m', source: 'file:modules/event/repository.py', target: 'file:modules/event/models.py', kind: 'file_import' },
@@ -197,7 +190,7 @@ const fileEdges: GraphEdge[] = [
   // core internal
   { id: 'fi:sec->db', source: 'file:core/security.py', target: 'file:core/database.py', kind: 'file_import' },
   { id: 'fi:sec->const', source: 'file:core/security.py', target: 'file:core/CONSTANTS.py', kind: 'file_import' },
-  // cross-module file imports → core
+  // 각 router → core (database, security)
   { id: 'fi:user:r->sec', source: 'file:modules/user/router.py', target: 'file:core/security.py', kind: 'file_import' },
   { id: 'fi:user:r->db', source: 'file:modules/user/router.py', target: 'file:core/database.py', kind: 'file_import' },
   { id: 'fi:gacha:r->sec', source: 'file:modules/gacha/router.py', target: 'file:core/security.py', kind: 'file_import' },
@@ -214,15 +207,6 @@ const fileEdges: GraphEdge[] = [
   { id: 'fi:main->misc_r', source: 'file:main.py', target: 'file:modules/misc/router.py', kind: 'file_import' },
   // tests → core
   { id: 'fi:conftest->db', source: 'file:tests/conftest.py', target: 'file:core/database.py', kind: 'file_import' },
-  // alembic → core
-  { id: 'fi:alembic_env->db', source: 'file:alembic/env.py', target: 'file:core/database.py', kind: 'file_import' },
-  // modules/models.py → 각 서브모듈 models (cross-module 집약)
-  { id: 'fi:mods_m->user_m', source: 'file:modules/models.py', target: 'file:modules/user/models.py', kind: 'file_import' },
-  { id: 'fi:mods_m->gacha_m', source: 'file:modules/models.py', target: 'file:modules/gacha/models.py', kind: 'file_import' },
-  { id: 'fi:mods_m->shop_m', source: 'file:modules/models.py', target: 'file:modules/shop/models.py', kind: 'file_import' },
-  { id: 'fi:mods_m->event_m', source: 'file:modules/models.py', target: 'file:modules/event/models.py', kind: 'file_import' },
-  { id: 'fi:mods_m->notice_m', source: 'file:modules/models.py', target: 'file:modules/notice/models.py', kind: 'file_import' },
-  { id: 'fi:mods_m->uel_m', source: 'file:modules/models.py', target: 'file:modules/user_event_log/models.py', kind: 'file_import' },
 ];
 
 // ─── Export ───
@@ -275,12 +259,10 @@ export function getMockExpandModule(modulePath: string): { nodes: GraphNode[]; e
   const fileIds = new Set(moduleFiles.map((f) => f.id));
   const moduleId = `module:${modulePath}`;
 
-  // 관련 file import 엣지 (source 또는 target이 이 모듈 파일)
   const relatedEdges = fileEdges.filter(
     (e) => fileIds.has(e.source) || fileIds.has(e.target),
   );
 
-  // 모듈→파일 containment 엣지
   const containmentEdges: GraphEdge[] = moduleFiles.map((f) => ({
     id: `contain:${moduleId}->${f.id}`,
     source: moduleId,
