@@ -2,23 +2,100 @@ import { useEffect, useRef, useCallback } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
 import type { GraphNode, GraphEdge } from '../../../shared/types/graph';
+import type { NodeWeight } from '../utils/weight';
+import { getTopHubs, getNodeSize } from '../utils/weight';
+import type { ViewMode } from '../store';
 
 // Register cose-bilkent layout
 cytoscape.use(coseBilkent);
 
 export type CytoscapeInstance = cytoscape.Core;
 
+// Layer detection patterns for architecture mode
+const LAYER_PATTERNS = {
+  ui: /\/(ui|components|views|pages|presentation)\//i,
+  app: /\/(app|application|services|hooks)\//i,
+  domain: /\/(domain|business|core|models|entities)\//i,
+  infra: /\/(infra|infrastructure|data|external|api|db)\//i,
+};
+
+type LayerType = 'ui' | 'app' | 'domain' | 'infra';
+
 interface UseCytoscapeOptions {
   nodes: GraphNode[];
   edges: GraphEdge[];
+  nodeWeights?: NodeWeight[];
+  viewMode?: ViewMode;
   onNodeClick?: (nodeId: string) => void;
   onNodeHover?: (nodeId: string | null) => void;
   onEdgeHover?: (edgeId: string | null) => void;
 }
 
+/**
+ * Determine layer type from file path
+ */
+function getLayer(path?: string): LayerType {
+  if (!path) return 'domain';
+  if (LAYER_PATTERNS.ui.test(path)) return 'ui';
+  if (LAYER_PATTERNS.app.test(path)) return 'app';
+  if (LAYER_PATTERNS.infra.test(path)) return 'infra';
+  if (LAYER_PATTERNS.domain.test(path)) return 'domain';
+  return 'domain'; // Default to middle layer
+}
+
+/**
+ * Analyze edge directions to determine layer order
+ * Returns true if more edges flow from Infra -> UI (bottom-up)
+ * Returns false if more edges flow from UI -> Infra (top-down)
+ */
+function analyzeEdgeDirection(
+  edges: GraphEdge[],
+  nodeLayerMap: Map<string, LayerType>,
+): boolean {
+  const layerOrder: Record<LayerType, number> = {
+    infra: 0,
+    domain: 1,
+    app: 2,
+    ui: 3,
+  };
+
+  let upwardCount = 0;
+  let downwardCount = 0;
+
+  for (const edge of edges) {
+    const sourceLayer = nodeLayerMap.get(edge.source);
+    const targetLayer = nodeLayerMap.get(edge.target);
+
+    if (sourceLayer && targetLayer) {
+      const sourceOrder = layerOrder[sourceLayer];
+      const targetOrder = layerOrder[targetLayer];
+
+      if (targetOrder > sourceOrder) {
+        upwardCount++;
+      } else if (targetOrder < sourceOrder) {
+        downwardCount++;
+      }
+    }
+  }
+
+  return upwardCount >= downwardCount; // Default to bottom-up if equal
+}
+
 export function useCytoscape(options: UseCytoscapeOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const nodeWeightMapRef = useRef<Map<string, NodeWeight>>(new Map());
+
+  // Build node weight map for quick lookup
+  useEffect(() => {
+    const map = new Map<string, NodeWeight>();
+    if (options.nodeWeights) {
+      for (const weight of options.nodeWeights) {
+        map.set(weight.nodeId, weight);
+      }
+    }
+    nodeWeightMapRef.current = map;
+  }, [options.nodeWeights]);
 
   // Initialize Cytoscape instance
   useEffect(() => {
@@ -28,15 +105,13 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       container: containerRef.current,
       elements: [],
       style: [
-        // Base node styles
+        // Base node styles - width/height will be set dynamically
         {
           selector: 'node',
           style: {
             'background-color': '#1a1a2e',
             'border-color': '#533483',
             'border-width': 2,
-            'width': 40,
-            'height': 40,
             'label': 'data(label)',
             'color': '#e0e0e0',
             'font-size': '12px',
@@ -51,8 +126,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           style: {
             'background-color': '#0f3460',
             'border-color': '#e94560',
-            'width': 60,
-            'height': 60,
             'font-size': '14px',
             'font-weight': 'bold',
           },
@@ -63,8 +136,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           style: {
             'background-color': '#1a1a2e',
             'border-color': '#533483',
-            'width': 50,
-            'height': 50,
           },
         },
         // File nodes
@@ -73,8 +144,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           style: {
             'background-color': '#12121a',
             'border-color': '#8888aa',
-            'width': 40,
-            'height': 40,
             'font-size': '10px',
           },
         },
@@ -160,25 +229,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           },
         },
       ],
-      layout: {
-        name: 'cose-bilkent',
-        animate: true,
-        animationDuration: 500,
-        randomize: false,
-        componentSpacing: 100,
-        nodeRepulsion: 4500,
-        edgeElasticity: 0.45,
-        nestingFactor: 0.1,
-        gravity: 0.25,
-        numIter: 2500,
-        tile: true,
-        tilingPaddingVertical: 10,
-        tilingPaddingHorizontal: 10,
-        gravityRangeCompound: 1.5,
-        gravityCompound: 1.0,
-        gravityRange: 3.8,
-        initialEnergyOnIncremental: 0.5,
-      } as any,
       minZoom: 0.1,
       maxZoom: 3,
       wheelSensitivity: 0.3,
@@ -226,16 +276,22 @@ export function useCytoscape(options: UseCytoscapeOptions) {
     if (!cy) return;
 
     // Build elements array
-    const nodeElements = options.nodes.map((node) => ({
-      data: {
-        id: node.id,
-        label: node.label,
-        type: node.type,
-        path: node.path,
-        language: node.language,
-      },
-      classes: node.type,
-    }));
+    const nodeElements = options.nodes.map((node) => {
+      const weight = nodeWeightMapRef.current.get(node.id);
+      const size = weight ? getNodeSize(weight.normalizedWeight) : 45;
+
+      return {
+        data: {
+          id: node.id,
+          label: node.label,
+          type: node.type,
+          path: node.path,
+          language: node.language,
+          weight: weight?.normalizedWeight || 0,
+        },
+        classes: node.type,
+      };
+    });
 
     const edgeElements = options.edges.map((edge) => ({
       data: {
@@ -251,16 +307,107 @@ export function useCytoscape(options: UseCytoscapeOptions) {
     cy.elements().remove();
     cy.add([...nodeElements, ...edgeElements]);
 
-    // Run layout
-    (cy.layout({
-      name: 'cose-bilkent',
-      animate: true,
-      animationDuration: 500,
-      randomize: false,
-      fit: true,
-      padding: 50,
-    } as any).run());
-  }, [options.nodes, options.edges]);
+    // Apply dynamic sizes based on weights
+    if (options.nodeWeights && options.nodeWeights.length > 0) {
+      options.nodes.forEach((node) => {
+        const weight = nodeWeightMapRef.current.get(node.id);
+        if (weight) {
+          const size = getNodeSize(weight.normalizedWeight);
+          cy.getElementById(node.id).style({
+            width: size,
+            height: size,
+          });
+        }
+      });
+    }
+
+    // Run layout based on view mode
+    const viewMode = options.viewMode || 'overview';
+
+    if (viewMode === 'overview') {
+      // Overview mode: Concentric layout with hubs in center
+      const weights = options.nodeWeights || [];
+      const { hubs } = getTopHubs(weights);
+      const hubIds = new Set(hubs.map((h) => h.nodeId));
+
+      const layout = cy.layout({
+        name: 'concentric',
+        concentric: (node: any) => {
+          const weight = nodeWeightMapRef.current.get(node.id());
+          // Higher weight = inner circle
+          return weight?.normalizedWeight || 0;
+        },
+        levelWidth: () => 0.5,
+        animate: true,
+        animationDuration: 500,
+        padding: 50,
+        fit: true,
+      } as any);
+
+      layout.run();
+    } else {
+      // Architecture mode: Grid layout with layer-based positioning
+      const nodeLayerMap = new Map<string, LayerType>();
+      options.nodes.forEach((node) => {
+        nodeLayerMap.set(node.id, getLayer(node.path));
+      });
+
+      // Determine layer order based on edge analysis
+      const isBottomUp = analyzeEdgeDirection(options.edges, nodeLayerMap);
+
+      // Layer Y positions (top to bottom on screen)
+      const layerYPositions = isBottomUp
+        ? { ui: 100, app: 300, domain: 500, infra: 700 }
+        : { infra: 100, domain: 300, app: 500, ui: 700 };
+
+      // Group nodes by layer
+      const nodesByLayer: Record<LayerType, cytoscape.NodeSingular[]> = {
+        ui: [],
+        app: [],
+        domain: [],
+        infra: [],
+      };
+
+      cy.nodes().forEach((node) => {
+        const layer = getLayer(node.data('path'));
+        nodesByLayer[layer].push(node);
+      });
+
+      // Calculate X positions manually to distribute nodes evenly within each layer
+      let layoutConfig: any;
+
+      if (cy.nodes().length > 0) {
+        // First, run a grid layout to get initial positions
+        const gridLayout = cy.layout({
+          name: 'grid',
+          fit: true,
+          padding: 30,
+          animate: false,
+        });
+        gridLayout.run();
+
+        // Then, manually adjust Y positions based on layers
+        (cy.nodes() as any).positions((node: any) => {
+          const layer = getLayer(node.data('path'));
+          const currentPos = node.position();
+          const targetY = layerYPositions[layer];
+
+          return {
+            x: currentPos.x,
+            y: targetY,
+          };
+        });
+
+        // Animate to new positions
+        cy.animate({
+          fit: {
+            padding: 50,
+          },
+          duration: 500,
+        });
+      }
+    }
+  }, [options.nodes, options.edges, options.nodeWeights, options.viewMode]);
 
   // Fit to viewport
   const fit = useCallback(() => {

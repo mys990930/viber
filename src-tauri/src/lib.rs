@@ -83,6 +83,8 @@ pub fn run() {
             domain::project::commands::project_update_config,
             domain::project::commands::project_recent,
             domain::graph::commands::graph_get,
+            domain::graph::commands::graph_expand_module,
+            domain::graph::commands::graph_collapse_module,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -75,6 +75,64 @@ impl GraphService {
         GraphData { nodes, edges }
     }
 
+    pub fn expand_module(&self, module_path: &str) -> GraphData {
+        // module_path에 해당하는 직속 파일 노드 + 그 파일들 간 엣지 반환
+        let prefix = if module_path == "." {
+            String::new()
+        } else {
+            format!("{}/", module_path)
+        };
+
+        let module_id = format!("module:{module_path}");
+
+        // 직속 파일만 (서브디렉토리의 파일은 제외)
+        let nodes: Vec<GraphNode> = self.graph.nodes.iter()
+            .filter(|n| {
+                if n.node_type != GraphNodeType::File {
+                    return false;
+                }
+                let Some(ref path) = n.path else { return false };
+                let path_str = path.to_string_lossy();
+
+                if module_path == "." {
+                    // 루트 모듈: 슬래시 없는 파일만
+                    !path_str.contains('/')
+                } else {
+                    // 해당 디렉토리의 직속 파일
+                    path_str.starts_with(&prefix)
+                        && !path_str[prefix.len()..].contains('/')
+                }
+            })
+            .cloned()
+            .collect();
+
+        let node_ids: std::collections::HashSet<&str> = nodes.iter()
+            .map(|n| n.id.as_str())
+            .collect();
+
+        // 모듈→파일 엣지 + 파일↔파일 엣지 (source 또는 target이 이 파일셋에 속하는 것)
+        let edges: Vec<GraphEdge> = self.graph.edges.iter()
+            .filter(|e| {
+                // 모듈→파일 (부모 관계)
+                if e.source == module_id && node_ids.contains(e.target.as_str()) {
+                    return true;
+                }
+                // 파일→파일 (import 관계) — 양쪽 다 이 모듈 파일이거나, 한쪽이 다른 모듈 파일
+                if e.kind == EdgeKind::FileImport
+                    && (node_ids.contains(e.source.as_str()) || node_ids.contains(e.target.as_str()))
+                {
+                    return true;
+                }
+                false
+            })
+            .cloned()
+            .collect();
+
+        println!("[BE] expand_module '{}': {} files, {} edges", module_path, nodes.len(), edges.len());
+
+        GraphData { nodes, edges }
+    }
+
     pub fn rebuild(&mut self, root: &Path, parser_registry: &ParserRegistry) -> Result<(), ViberError> {
         let next = builder::build_graph(root, parser_registry);
         let current = self.graph.clone();

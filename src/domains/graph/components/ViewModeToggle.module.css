@@ -1,0 +1,33 @@
+.container {
+  display: inline-flex;
+  gap: 8px;
+  background: #1a1a2e; /* bg.surface */
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.button {
+  background: transparent;
+  color: #e0e0e0; /* text.primary */
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.button:hover {
+  border-color: rgba(233,69,96,0.4);
+}
+
+.active {
+  background: linear-gradient(180deg, rgba(233,69,96,0.12), rgba(233,69,96,0.06)); /* accent.primary */
+  border-color: #e94560;
+  color: #e94560;
+}
+
+/* Small accessibility focus ring */
+.button:focus {
+  outline: 2px solid rgba(233,69,96,0.18);
+  outline-offset: 2px;
+}

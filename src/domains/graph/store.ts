@@ -139,6 +139,10 @@ export const useGraphStore = create<GraphStore>((set) => ({
 
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
+
+  setViewMode: (viewMode) => set({ viewMode }),
+  setWeightPreset: (weightPreset) => set({ weightPreset }),
+  setNodeWeights: (nodeWeights) => set({ nodeWeights }),
 }));
 
 export default useGraphStore;
