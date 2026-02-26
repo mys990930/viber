@@ -141,7 +141,7 @@ pub fn build_graph_with_config(
     let root_module_id = "module:.".to_string();
     nodes.push(GraphNode {
         id: root_module_id.clone(),
-        node_type: GraphNodeType::Module,
+        node_type: GraphNodeType::Group,
         label: root
             .file_name()
             .map(|n| n.to_string_lossy().to_string())
