@@ -53,6 +53,7 @@ pub struct GraphNode {
 pub enum GraphNodeType {
     Package,
     Module,
+    Group,
     File,
 }
 
@@ -71,6 +72,7 @@ pub enum EdgeKind {
     PackageDep,
     ModuleImport,
     FileImport,
+    Contains,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

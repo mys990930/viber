@@ -140,6 +140,19 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'border-color': '#533483',
           },
         },
+        // Group nodes (파일 없는 정리용 폴더 — 옅은 boundary)
+        {
+          selector: 'node[type="group"]',
+          style: {
+            'background-color': '#0d0d15',
+            'background-opacity': 0.3,
+            'border-color': '#333355',
+            'border-width': 1,
+            'border-style': 'dashed' as any,
+            'font-size': '12px',
+            'color': '#666688',
+          },
+        },
         // File nodes
         {
           selector: 'node[type="file"]',
@@ -211,6 +224,17 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'width': 1,
             'line-color': '#8888aa',
             'target-arrow-color': '#8888aa',
+          },
+        },
+        // Contains edges (디렉토리 포함 관계 — 매우 옅게)
+        {
+          selector: 'edge[kind="contains"]',
+          style: {
+            'width': 1,
+            'line-color': '#2a2a40',
+            'target-arrow-color': '#2a2a40',
+            'line-style': 'dotted' as any,
+            'opacity': 0.4,
           },
         },
         // Flow path edges (dashed red)

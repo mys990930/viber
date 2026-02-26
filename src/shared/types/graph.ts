@@ -2,7 +2,7 @@ import type { Language } from './project';
 
 // ─── Node ───
 
-export type GraphNodeType = 'package' | 'module' | 'file';
+export type GraphNodeType = 'package' | 'module' | 'group' | 'file';
 
 export interface GraphNode {
   id: string;
@@ -14,7 +14,7 @@ export interface GraphNode {
 
 // ─── Edge ───
 
-export type EdgeKind = 'package_dep' | 'module_import' | 'file_import';
+export type EdgeKind = 'package_dep' | 'module_import' | 'file_import' | 'contains';
 
 export interface GraphEdge {
   id: string;

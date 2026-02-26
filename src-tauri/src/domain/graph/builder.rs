@@ -91,7 +91,12 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
 
         nodes.push(GraphNode {
             id: id.clone(),
-            node_type: GraphNodeType::Module,
+            // 직접 파일이 없는 디렉토리는 group (정리용 폴더)
+            node_type: if modules_with_files.contains(module_path) {
+                GraphNodeType::Module
+            } else {
+                GraphNodeType::Group
+            },
             label,
             path: Some(PathBuf::from(module_path)),
             language: None,
@@ -109,10 +114,10 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         };
 
         edges.push(GraphEdge {
-            id: format!("module_import:{parent_id}->{id}"),
+            id: format!("contains:{parent_id}->{id}"),
             source: parent_id,
             target: id,
-            kind: EdgeKind::ModuleImport,
+            kind: EdgeKind::Contains,
         });
     }
 

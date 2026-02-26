@@ -25,11 +25,12 @@ const packages: GraphNode[] = [
   { id: 'package:alembic', type: 'package', label: 'alembic' },
 ];
 
-// ─── Modules (디렉토리 구조) ───
+// ─── Modules & Groups (디렉토리 구조) ───
 const modules: GraphNode[] = [
   { id: 'module:.', type: 'module', label: 'barber.io', path: '.', language: 'python' },
   { id: 'module:core', type: 'module', label: 'core', path: 'core', language: 'python' },
-  { id: 'module:modules', type: 'module', label: 'modules', path: 'modules', language: 'python' },
+  // modules/ — 직접 파일 없는 정리용 폴더 → group
+  { id: 'module:modules', type: 'group', label: 'modules', path: 'modules', language: 'python' },
   { id: 'module:modules/user', type: 'module', label: 'user', path: 'modules/user', language: 'python' },
   { id: 'module:modules/gacha', type: 'module', label: 'gacha', path: 'modules/gacha', language: 'python' },
   { id: 'module:modules/shop', type: 'module', label: 'shop', path: 'modules/shop', language: 'python' },
@@ -133,21 +134,21 @@ const moduleEdges: GraphEdge[] = [
   { id: 'modimp:ranking->core', source: 'module:modules/ranking', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:misc->core', source: 'module:modules/misc', target: 'module:core', kind: 'module_import' },
   { id: 'modimp:uel->core', source: 'module:modules/user_event_log', target: 'module:core', kind: 'module_import' },
-  // 계층: root → core, modules, tests
-  { id: 'modimp:root->core', source: 'module:.', target: 'module:core', kind: 'module_import' },
-  { id: 'modimp:root->modules', source: 'module:.', target: 'module:modules', kind: 'module_import' },
-  { id: 'modimp:root->tests', source: 'module:.', target: 'module:tests', kind: 'module_import' },
-  // modules → sub-modules
-  { id: 'modimp:modules->user', source: 'module:modules', target: 'module:modules/user', kind: 'module_import' },
-  { id: 'modimp:modules->gacha', source: 'module:modules', target: 'module:modules/gacha', kind: 'module_import' },
-  { id: 'modimp:modules->shop', source: 'module:modules', target: 'module:modules/shop', kind: 'module_import' },
-  { id: 'modimp:modules->event', source: 'module:modules', target: 'module:modules/event', kind: 'module_import' },
-  { id: 'modimp:modules->ranking', source: 'module:modules', target: 'module:modules/ranking', kind: 'module_import' },
-  { id: 'modimp:modules->notice', source: 'module:modules', target: 'module:modules/notice', kind: 'module_import' },
-  { id: 'modimp:modules->admin', source: 'module:modules', target: 'module:modules/admin', kind: 'module_import' },
-  { id: 'modimp:modules->admin_auth', source: 'module:modules', target: 'module:modules/admin_auth', kind: 'module_import' },
-  { id: 'modimp:modules->misc', source: 'module:modules', target: 'module:modules/misc', kind: 'module_import' },
-  { id: 'modimp:modules->user_event_log', source: 'module:modules', target: 'module:modules/user_event_log', kind: 'module_import' },
+  // 계층 구조 (contains — 디렉토리 포함 관계)
+  { id: 'contains:root->core', source: 'module:.', target: 'module:core', kind: 'contains' },
+  { id: 'contains:root->modules', source: 'module:.', target: 'module:modules', kind: 'contains' },
+  { id: 'contains:root->tests', source: 'module:.', target: 'module:tests', kind: 'contains' },
+  // modules → sub-modules (contains)
+  { id: 'contains:modules->user', source: 'module:modules', target: 'module:modules/user', kind: 'contains' },
+  { id: 'contains:modules->gacha', source: 'module:modules', target: 'module:modules/gacha', kind: 'contains' },
+  { id: 'contains:modules->shop', source: 'module:modules', target: 'module:modules/shop', kind: 'contains' },
+  { id: 'contains:modules->event', source: 'module:modules', target: 'module:modules/event', kind: 'contains' },
+  { id: 'contains:modules->ranking', source: 'module:modules', target: 'module:modules/ranking', kind: 'contains' },
+  { id: 'contains:modules->notice', source: 'module:modules', target: 'module:modules/notice', kind: 'contains' },
+  { id: 'contains:modules->admin', source: 'module:modules', target: 'module:modules/admin', kind: 'contains' },
+  { id: 'contains:modules->admin_auth', source: 'module:modules', target: 'module:modules/admin_auth', kind: 'contains' },
+  { id: 'contains:modules->misc', source: 'module:modules', target: 'module:modules/misc', kind: 'contains' },
+  { id: 'contains:modules->user_event_log', source: 'module:modules', target: 'module:modules/user_event_log', kind: 'contains' },
   // cross-module 의존성 없음 — alembic이 모델 집약 담당 (외부 패키지로 표시)
 ];
 
