@@ -1,0 +1,8 @@
+{
+  "languages": [
+    "typescript",
+    "rust"
+  ],
+  "llm": null,
+  "excludedPaths": []
+}
