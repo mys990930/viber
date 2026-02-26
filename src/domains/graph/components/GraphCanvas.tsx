@@ -4,6 +4,7 @@ import { useGraph } from '../hooks/useGraph';
 import { useCytoscape } from '../hooks/useCytoscape';
 import { ViewModeToggle } from './ViewModeToggle';
 import { WeightPresetSelector } from './WeightPresetSelector';
+import { ExternalModeToggle } from './ExternalModeToggle';
 import styles from './GraphCanvas.module.css';
 
 export function GraphCanvas() {
@@ -21,6 +22,7 @@ export function GraphCanvas() {
   // Get view and weight state from store
   const viewMode = useGraphStore((s) => s.viewMode);
   const weightPreset = useGraphStore((s) => s.weightPreset);
+  const externalMode = useGraphStore((s) => s.externalMode);
   const setNodeWeights = useGraphStore((s) => s.setNodeWeights);
   const nodeWeights = useGraphStore((s) => s.nodeWeights);
   const allFileEdges = useGraphStore((s) => s.allFileEdges);
@@ -49,11 +51,10 @@ export function GraphCanvas() {
     edges,
     nodeWeights,
     viewMode,
+    externalMode,
     onNodeClick: (nodeId) => {
       selectNode(nodeId);
-    },
-    onNodeDoubleClick: (nodeId) => {
-      // 모듈 노드 더블클릭 → expand/collapse
+      // 모듈 노드 클릭 → expand/collapse
       const node = nodes.find((n) => n.id === nodeId);
       if (node?.type === 'module' && node.path) {
         toggleModule(node.path);
@@ -109,6 +110,7 @@ export function GraphCanvas() {
         <div className={styles.controls}>
           <ViewModeToggle />
           <WeightPresetSelector />
+          <ExternalModeToggle />
         </div>
       )}
     </div>

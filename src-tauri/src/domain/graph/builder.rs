@@ -6,57 +6,129 @@ use crate::shared::types::{EdgeKind, GraphEdge, GraphNode, GraphNodeType, Langua
 
 use super::service::GraphData;
 
+/// Project-level configuration for graph building.
+/// Loaded from `.viber/config.toml` if present.
+#[derive(Debug, Clone, Default)]
+pub struct GraphConfig {
+    /// Additional directories to exclude (on top of COMMON_EXCLUDED_DIRS).
+    pub exclude_dirs: Vec<String>,
+    /// Directories treated as external/infra (shown as packages, not modules).
+    pub external_dirs: Vec<String>,
+}
+
+impl GraphConfig {
+    /// Load from `.viber/config.toml` in the project root.
+    /// Returns default if file doesn't exist or can't be parsed.
+    pub fn load(root: &Path) -> Self {
+        let config_path = root.join(".viber").join("config.toml");
+        let content = match std::fs::read_to_string(&config_path) {
+            Ok(c) => c,
+            Err(_) => return Self::default(),
+        };
+        Self::parse_toml(&content)
+    }
+
+    fn parse_toml(content: &str) -> Self {
+        let mut config = Self::default();
+        let mut in_graph = false;
+
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with('[') {
+                in_graph = trimmed == "[graph]";
+                continue;
+            }
+            if !in_graph { continue; }
+
+            if let Some((key, value)) = trimmed.split_once('=') {
+                let key = key.trim();
+                let value = value.trim();
+                match key {
+                    "exclude_dirs" => config.exclude_dirs = parse_toml_string_array(value),
+                    "external_dirs" => config.external_dirs = parse_toml_string_array(value),
+                    _ => {}
+                }
+            }
+        }
+        config
+    }
+}
+
+fn parse_toml_string_array(value: &str) -> Vec<String> {
+    let inner = value.trim().trim_start_matches('[').trim_end_matches(']');
+    inner.split(',')
+        .map(|s| s.trim().trim_matches('"').trim_matches('\'').to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
 pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
+    let config = GraphConfig::load(root);
+    build_graph_with_config(root, parser_registry, &config)
+}
+
+pub fn build_graph_with_config(
+    root: &Path,
+    parser_registry: &ParserRegistry,
+    config: &GraphConfig,
+) -> GraphData {
     let mut nodes = Vec::new();
     let mut edges = Vec::new();
 
-    // ─── 1. 파일 수집 ───
-    let mut files = Vec::new();
-    collect_files(root, &mut files);
+    // Build combined exclude set
+    let exclude_set: HashSet<&str> = COMMON_EXCLUDED_DIRS.iter()
+        .copied()
+        .chain(config.exclude_dirs.iter().map(|s| s.as_str()))
+        .collect();
+    let external_set: HashSet<&str> = config.external_dirs.iter()
+        .map(|s| s.as_str())
+        .collect();
 
-    // ─── 2. 모듈(디렉토리) 노드 생성 ───
-    // 파싱 가능한 파일이 있는 디렉토리만 모듈로 등록
+    // ─── 1. Collect parseable files only ───
+    let mut parseable_files: Vec<(PathBuf, PathBuf, Language)> = Vec::new(); // (absolute, relative, lang)
+    collect_parseable_files(root, root, parser_registry, &exclude_set, &external_set, &mut parseable_files);
+
+    // ─── 2. Module (directory) nodes ───
+    // Track which directories have direct parseable files
     let mut module_ids: HashSet<String> = HashSet::new();
     let mut modules_with_files: HashSet<String> = HashSet::new();
 
-    for file in &files {
-        if is_excluded(file) {
-            continue;
-        }
-        let relative = match file.strip_prefix(root) {
-            Ok(p) => p,
-            Err(_) => continue,
-        };
-
-        // 파싱 가능 여부 체크
-        let has_parser = parser_registry.detect_language(file).is_some();
-
+    for (_, relative, _) in &parseable_files {
         if let Some(parent) = relative.parent() {
+            let file_name = relative.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("");
+            // __init__.py alone doesn't make a directory a "real" module
+            let is_init_only = file_name == "__init__.py";
+
             if parent.as_os_str().is_empty() {
+                // Root dir
                 module_ids.insert(String::new());
-                if has_parser {
+                if !is_init_only {
                     modules_with_files.insert(String::new());
                 }
             } else {
+                // Register all ancestor directories as modules
                 let mut current = PathBuf::new();
                 for component in parent.components() {
                     current.push(component);
                     let key = current.to_string_lossy().to_string();
                     module_ids.insert(key.clone());
-                    if has_parser {
-                        modules_with_files.insert(key);
-                    }
+                }
+                // Only the direct parent has files (if not just __init__.py)
+                if !is_init_only {
+                    let direct_parent = parent.to_string_lossy().to_string();
+                    modules_with_files.insert(direct_parent);
                 }
             }
         }
     }
 
-    // 파싱 가능한 파일이 없는 디렉토리 제거 (단, 자식 모듈이 있으면 유지)
+    // Remove dirs with no parseable files (and no child modules with files)
     let all_module_ids: Vec<String> = module_ids.iter().cloned().collect();
     for m in &all_module_ids {
         if m.is_empty() { continue; }
         if modules_with_files.contains(m) { continue; }
-        // 자식 모듈 중 파일이 있는 게 있으면 유지
         let has_child_with_files = modules_with_files.iter().any(|child| {
             child.starts_with(m) && child.len() > m.len() && child.as_bytes().get(m.len()) == Some(&b'/')
         });
@@ -65,7 +137,7 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         }
     }
 
-    // 루트 모듈
+    // Root module node
     let root_module_id = "module:.".to_string();
     nodes.push(GraphNode {
         id: root_module_id.clone(),
@@ -78,8 +150,11 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         language: None,
     });
 
-    // 서브 모듈 노드
-    let mut sorted_modules: Vec<String> = module_ids.iter().filter(|m| !m.is_empty()).cloned().collect();
+    // Sub-module nodes
+    let mut sorted_modules: Vec<String> = module_ids.iter()
+        .filter(|m| !m.is_empty())
+        .cloned()
+        .collect();
     sorted_modules.sort();
 
     for module_path in &sorted_modules {
@@ -89,20 +164,22 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
             .map(|n| n.to_string_lossy().to_string())
             .unwrap_or_else(|| module_path.clone());
 
+        // Group = directory with no direct parseable files (organizational folder)
+        let node_type = if modules_with_files.contains(module_path) {
+            GraphNodeType::Module
+        } else {
+            GraphNodeType::Group
+        };
+
         nodes.push(GraphNode {
             id: id.clone(),
-            // 직접 파일이 없는 디렉토리는 group (정리용 폴더)
-            node_type: if modules_with_files.contains(module_path) {
-                GraphNodeType::Module
-            } else {
-                GraphNodeType::Group
-            },
+            node_type,
             label,
             path: Some(PathBuf::from(module_path)),
             language: None,
         });
 
-        // 부모 모듈로의 엣지
+        // Contains edge to parent
         let parent_id = if let Some(parent) = Path::new(module_path).parent() {
             if parent.as_os_str().is_empty() {
                 root_module_id.clone()
@@ -121,21 +198,11 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         });
     }
 
-    // ─── 3. 파일 노드 + 엣지 ───
-    let mut python_node_by_module: HashMap<String, String> = HashMap::new();
-    let mut python_files: Vec<PathBuf> = Vec::new();
+    // ─── 3. File nodes ───
+    let mut file_node_ids: HashSet<String> = HashSet::new();
+    let mut module_name_to_file_id: HashMap<String, String> = HashMap::new();
 
-    for file in &files {
-        if is_excluded(file) {
-            continue;
-        }
-
-        let relative = match file.strip_prefix(root) {
-            Ok(path) => path,
-            Err(_) => continue,
-        };
-
-        let language = parser_registry.detect_language(file);
+    for (_, relative, language) in &parseable_files {
         let id = format!("file:{}", relative.display());
         let label = relative
             .file_name()
@@ -147,10 +214,10 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
             node_type: GraphNodeType::File,
             label,
             path: Some(relative.to_path_buf()),
-            language,
+            language: Some(*language),
         });
 
-        // 파일 → 소속 모듈 엣지
+        // Contains edge: module → file
         let parent_module_id = if let Some(parent) = relative.parent() {
             if parent.as_os_str().is_empty() {
                 root_module_id.clone()
@@ -162,59 +229,129 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         };
 
         edges.push(GraphEdge {
-            id: format!("file_import:{parent_module_id}->{id}"),
+            id: format!("contains:{parent_module_id}->{id}"),
             source: parent_module_id,
             target: id.clone(),
-            kind: EdgeKind::FileImport,
+            kind: EdgeKind::Contains,
         });
 
-        if language == Some(Language::Python) {
-            python_files.push(relative.to_path_buf());
-            for module_name in python_module_names(relative) {
-                python_node_by_module.insert(module_name, id.clone());
+        file_node_ids.insert(id.clone());
+
+        // Register module names for import resolution
+        match language {
+            Language::Python => {
+                for name in python_module_names(relative) {
+                    module_name_to_file_id.insert(name, id.clone());
+                }
             }
-        }
-    }
-
-    // ─── 4. Python import 엣지 ───
-    if let Some(parser) = parser_registry.get(Language::Python) {
-        for relative in &python_files {
-            let source_id = format!("file:{}", relative.display());
-            let absolute = root.join(relative);
-            let source = match std::fs::read_to_string(&absolute) {
-                Ok(content) => content,
-                Err(_) => continue,
-            };
-
-            let imports = parser.parse_imports(&source);
-            for import in imports {
-                if let Some(target_id) = python_node_by_module.get(&import.source) {
-                    let edge_id = format!("file_import:{source_id}->{target_id}");
-                    edges.push(GraphEdge {
-                        id: edge_id,
-                        source: source_id.clone(),
-                        target: target_id.clone(),
-                        kind: EdgeKind::FileImport,
-                    });
+            _ => {
+                // For non-Python: use relative path without extension as module name
+                let path_str = relative.to_string_lossy().replace('\\', "/");
+                module_name_to_file_id.insert(path_str.clone(), id.clone());
+                if let Some(without_ext) = path_str.rsplit_once('.') {
+                    module_name_to_file_id.insert(without_ext.0.to_string(), id.clone());
                 }
             }
         }
     }
 
-    // ─── 5. 패키지 의존성 ───
-    let package_names = parse_package_dependencies(root);
-    let mut seen_pkg = HashSet::new();
+    // ─── 4. Import edges (file → file) ───
+    let mut seen_import_edges: HashSet<String> = HashSet::new();
+    let mut module_import_pairs: HashSet<(String, String)> = HashSet::new();
 
-    for package in package_names {
-        if !seen_pkg.insert(package.clone()) {
-            continue;
+    for (absolute, relative, language) in &parseable_files {
+        let source_id = format!("file:{}", relative.display());
+        let source_module = get_module_id(relative, &root_module_id);
+
+        let source_content = match std::fs::read_to_string(absolute) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+
+        if let Some(parser) = parser_registry.get(*language) {
+            let imports = parser.parse_imports(&source_content);
+            for import in imports {
+                // Try to resolve import to a file node
+                let target_id = resolve_import(&import.source, &module_name_to_file_id, relative);
+                if let Some(target_id) = target_id {
+                    if target_id == source_id { continue; } // skip self-imports
+                    let edge_id = format!("file_import:{source_id}->{target_id}");
+                    if seen_import_edges.insert(edge_id.clone()) {
+                        edges.push(GraphEdge {
+                            id: edge_id,
+                            source: source_id.clone(),
+                            target: target_id.clone(),
+                            kind: EdgeKind::FileImport,
+                        });
+
+                        // Track module-level import for module_import edges
+                        let target_relative = target_id.strip_prefix("file:").unwrap_or("");
+                        let target_module = get_module_id(
+                            Path::new(target_relative),
+                            &root_module_id,
+                        );
+                        if source_module != target_module {
+                            module_import_pairs.insert((source_module.clone(), target_module));
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    // ─── 5. Module import edges (derived from file imports) ───
+    for (source_mod, target_mod) in &module_import_pairs {
+        let edge_id = format!("module_import:{source_mod}->{target_mod}");
+        edges.push(GraphEdge {
+            id: edge_id,
+            source: source_mod.clone(),
+            target: target_mod.clone(),
+            kind: EdgeKind::ModuleImport,
+        });
+    }
+
+    // ─── 6. Package dependencies (external) ───
+    let mut external_packages: Vec<String> = Vec::new();
+
+    // From requirements.txt / pyproject.toml
+    external_packages.extend(parse_package_dependencies(root));
+
+    // external_dirs from config → package nodes
+    for dir_name in &config.external_dirs {
+        // Only add if the directory actually exists and was found as a module
+        let dir_module_id = format!("module:{dir_name}");
+        if module_ids.contains(dir_name.as_str()) {
+            // Remove as module, add as package instead
+            nodes.retain(|n| n.id != dir_module_id);
+            edges.retain(|e| e.source != dir_module_id && e.target != dir_module_id);
+            // Also remove child modules/files of this dir
+            let prefix = format!("{dir_name}/");
+            let child_ids: Vec<String> = nodes.iter()
+                .filter(|n| {
+                    n.path.as_ref()
+                        .map(|p| p.to_string_lossy().starts_with(&prefix))
+                        .unwrap_or(false)
+                })
+                .map(|n| n.id.clone())
+                .collect();
+            nodes.retain(|n| !child_ids.contains(&n.id));
+            edges.retain(|e| !child_ids.contains(&e.source) && !child_ids.contains(&e.target));
+
+            if !external_packages.contains(dir_name) {
+                external_packages.push(dir_name.clone());
+            }
+        }
+    }
+
+    let mut seen_pkg = HashSet::new();
+    for package in external_packages {
+        if !seen_pkg.insert(package.clone()) { continue; }
 
         let pkg_node_id = format!("package:{package}");
         nodes.push(GraphNode {
             id: pkg_node_id.clone(),
             node_type: GraphNodeType::Package,
-            label: package.clone(),
+            label: package,
             path: None,
             language: None,
         });
@@ -227,37 +364,102 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
         });
     }
 
-    println!("[BE] build_graph: {} modules, {} files, {} packages, {} edges",
-        sorted_modules.len() + 1,
-        files.len(),
-        seen_pkg.len(),
-        edges.len(),
+    let module_count = sorted_modules.len() + 1;
+    let file_count = parseable_files.len();
+    let pkg_count = seen_pkg.len();
+    println!(
+        "[BE] build_graph: {} modules, {} files, {} packages, {} edges ({} module_imports)",
+        module_count, file_count, pkg_count, edges.len(), module_import_pairs.len()
     );
 
     GraphData { nodes, edges }
 }
 
-fn collect_files(dir: &Path, files: &mut Vec<PathBuf>) {
+// ─── Helper functions ───
+
+/// Recursively collect parseable files, skipping excluded and external dirs.
+fn collect_parseable_files(
+    dir: &Path,
+    root: &Path,
+    registry: &ParserRegistry,
+    exclude_set: &HashSet<&str>,
+    external_set: &HashSet<&str>,
+    out: &mut Vec<(PathBuf, PathBuf, Language)>,
+) {
     let entries = match std::fs::read_dir(dir) {
-        Ok(entries) => entries,
+        Ok(e) => e,
         Err(_) => return,
     };
 
     for entry in entries.flatten() {
         let path = entry.path();
+        let name = entry.file_name();
+        let name_str = name.to_string_lossy();
+
         if path.is_dir() {
-            collect_files(&path, files);
+            // Skip excluded dirs
+            if exclude_set.contains(name_str.as_ref()) { continue; }
+            // Skip external dirs (only at top level relative to root)
+            if let Ok(rel) = path.strip_prefix(root) {
+                if rel.components().count() == 1 && external_set.contains(name_str.as_ref()) {
+                    continue;
+                }
+            }
+            collect_parseable_files(&path, root, registry, exclude_set, external_set, out);
         } else {
-            files.push(path);
+            // Only include files the parser can handle
+            if let Some(lang) = registry.detect_language(&path) {
+                if let Ok(relative) = path.strip_prefix(root) {
+                    out.push((path.clone(), relative.to_path_buf(), lang));
+                }
+            }
         }
     }
 }
 
-fn is_excluded(path: &Path) -> bool {
-    path.components().any(|c| {
-        let name = c.as_os_str().to_string_lossy();
-        COMMON_EXCLUDED_DIRS.contains(&name.as_ref())
-    })
+/// Get the module ID for a file's parent directory.
+fn get_module_id(relative: &Path, root_module_id: &str) -> String {
+    if let Some(parent) = relative.parent() {
+        if parent.as_os_str().is_empty() {
+            root_module_id.to_string()
+        } else {
+            format!("module:{}", parent.display())
+        }
+    } else {
+        root_module_id.to_string()
+    }
+}
+
+/// Try to resolve an import source string to a file node ID.
+fn resolve_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    _importer_path: &Path,
+) -> Option<String> {
+    // Direct match (e.g., "core.database" or "core/database")
+    if let Some(id) = module_map.get(import_source) {
+        return Some(id.clone());
+    }
+
+    // Try dot-to-slash conversion (Python: "core.database" → "core/database")
+    let slash_form = import_source.replace('.', "/");
+    if let Some(id) = module_map.get(&slash_form) {
+        return Some(id.clone());
+    }
+
+    // Try with .py extension
+    let py_form = format!("{slash_form}.py");
+    if let Some(id) = module_map.get(&py_form) {
+        return Some(id.clone());
+    }
+
+    // Try as package (__init__.py)
+    let init_form = format!("{slash_form}/__init__.py");
+    if let Some(id) = module_map.get(&init_form) {
+        return Some(id.clone());
+    }
+
+    None
 }
 
 fn python_module_names(relative: &Path) -> Vec<String> {
@@ -278,16 +480,22 @@ fn python_module_names(relative: &Path) -> Vec<String> {
         return names;
     }
 
+    // Full dotted path: "core.database"
     let module = normalized.trim_end_matches(".py").replace('/', ".");
     if !module.is_empty() {
         names.push(module.clone());
     }
 
+    // Short name: "database" (for `from core import database` style)
     if let Some(last) = module.split('.').last() {
         if !last.is_empty() {
             names.push(last.to_string());
         }
     }
+
+    // Also register the slash form for path-based resolution
+    let slash_form = normalized.trim_end_matches(".py").to_string();
+    names.push(slash_form);
 
     names
 }
@@ -302,7 +510,6 @@ fn parse_package_dependencies(root: &Path) -> Vec<String> {
             if trimmed.is_empty() || trimmed.starts_with('#') {
                 continue;
             }
-
             if let Some(name) = parse_requirement_name(trimmed) {
                 packages.push(name);
             }
@@ -325,13 +532,8 @@ fn parse_requirement_name(line: &str) -> Option<String> {
             break;
         }
     }
-
     let name = line[..end].trim();
-    if name.is_empty() {
-        None
-    } else {
-        Some(name.to_string())
-    }
+    if name.is_empty() { None } else { Some(name.to_string()) }
 }
 
 fn parse_pyproject_dependencies(content: &str) -> Vec<String> {
@@ -341,7 +543,6 @@ fn parse_pyproject_dependencies(content: &str) -> Vec<String> {
 
     for line in content.lines() {
         let trimmed = line.trim();
-
         if trimmed.starts_with('[') && trimmed.ends_with(']') {
             in_project_deps = trimmed == "[project]";
             in_poetry_deps = trimmed == "[tool.poetry.dependencies]";
@@ -362,9 +563,7 @@ fn parse_pyproject_dependencies(content: &str) -> Vec<String> {
         }
 
         if in_poetry_deps {
-            if trimmed.is_empty() || trimmed.starts_with('#') {
-                continue;
-            }
+            if trimmed.is_empty() || trimmed.starts_with('#') { continue; }
             if let Some((name, _)) = trimmed.split_once('=') {
                 let name = name.trim();
                 if name != "python" && !name.is_empty() {

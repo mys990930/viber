@@ -4,7 +4,7 @@ import coseBilkent from 'cytoscape-cose-bilkent';
 import type { GraphNode, GraphEdge } from '../../../shared/types/graph';
 import type { NodeWeight } from '../utils/weight';
 import { getNodeSize } from '../utils/weight';
-import type { ViewMode } from '../store';
+import type { ViewMode, ExternalMode } from '../store';
 
 // Register cose-bilkent layout
 cytoscape.use(coseBilkent);
@@ -21,13 +21,21 @@ const LAYER_PATTERNS = {
 
 type LayerType = 'ui' | 'app' | 'domain' | 'infra';
 
+/**
+ * Check if a node is external (not part of the main project)
+ * External nodes are packages that are not local modules
+ */
+function isExternalNode(node?: GraphNode): boolean {
+  return !!node && node.type === 'package' && !node.path?.startsWith('.');
+}
+
 interface UseCytoscapeOptions {
   nodes: GraphNode[];
   edges: GraphEdge[];
   nodeWeights?: NodeWeight[];
   viewMode?: ViewMode;
+  externalMode?: ExternalMode;
   onNodeClick?: (nodeId: string) => void;
-  onNodeDoubleClick?: (nodeId: string) => void;
   onNodeHover?: (nodeId: string | null) => void;
   onEdgeHover?: (edgeId: string | null) => void;
 }
@@ -113,7 +121,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           style: {
             'background-color': '#1a1a2e',
             'border-color': '#533483',
-            'border-width': 2,
+            'border-width': 1,
             'label': 'data(label)',
             'color': '#e0e0e0',
             'font-size': '12px',
@@ -122,14 +130,13 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'shape': 'ellipse',
           },
         },
-        // Package nodes
+        // Package nodes (external modules)
         {
           selector: 'node[type="package"]',
           style: {
             'background-color': '#0f3460',
             'border-color': '#e94560',
             'font-size': '14px',
-            'font-weight': 'bold',
           },
         },
         // Module nodes
@@ -145,12 +152,17 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           selector: 'node[type="group"]',
           style: {
             'background-color': '#0d0d15',
-            'background-opacity': 0.3,
-            'border-color': '#333355',
+            'background-opacity': 0.15,
+            'border-color': '#444466',
+            'border-opacity': 0.4,
+            'shape': 'round-rectangle' as any,
             'border-width': 1,
             'border-style': 'dashed' as any,
-            'font-size': '12px',
-            'color': '#666688',
+            'font-size': '11px',
+            'color': '#777799',
+            'text-background-color': '#0a0a12',
+            'text-background-opacity': 0.7,
+            'text-background-padding': '3px',
           },
         },
         // File nodes
@@ -167,7 +179,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           selector: 'node.selected',
           style: {
             'border-color': '#e94560',
-            'border-width': 4,
+            'border-width': 2,
           },
         },
         // Expanded module node
@@ -175,7 +187,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           selector: 'node.expanded',
           style: {
             'border-color': '#00d2ff',
-            'border-width': 3,
+            'border-width': 2,
             'border-style': 'dashed' as any,
           },
         },
@@ -184,26 +196,26 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           selector: 'node.changed',
           style: {
             'border-color': '#ffc107',
-            'border-width': 3,
+            'border-width': 2,
           },
         },
-        // Base edge styles
+        // Base edge styles - thinner
         {
           selector: 'edge',
           style: {
-            'width': 2,
+            'width': 1,
             'line-color': '#555577',
             'target-arrow-color': '#555577',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
-            'arrow-scale': 1.2,
+            'arrow-scale': 1,
           },
         },
         // Package dependency edges
         {
           selector: 'edge[kind="package_dep"]',
           style: {
-            'width': 3,
+            'width': 1.5,
             'line-color': '#e94560',
             'target-arrow-color': '#e94560',
           },
@@ -212,7 +224,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         {
           selector: 'edge[kind="module_import"]',
           style: {
-            'width': 2,
+            'width': 1,
             'line-color': '#533483',
             'target-arrow-color': '#533483',
           },
@@ -226,15 +238,15 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'target-arrow-color': '#8888aa',
           },
         },
-        // Contains edges (디렉토리 포함 관계 — 매우 옅게)
+        // Contains edges (디렉토리 포함 관계 — undirected, thin)
         {
           selector: 'edge[kind="contains"]',
           style: {
-            'width': 1,
+            'width': 0.5,
             'line-color': '#2a2a40',
-            'target-arrow-color': '#2a2a40',
+            'target-arrow-shape': 'none',
             'line-style': 'dotted' as any,
-            'opacity': 0.4,
+            'opacity': 0.3,
           },
         },
         // Flow path edges (dashed red)
@@ -252,13 +264,13 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           selector: 'node.hover',
           style: {
             'border-color': '#e94560',
-            'border-width': 3,
+            'border-width': 2,
           },
         },
         {
           selector: 'edge.hover',
           style: {
-            'width': 4,
+            'width': 2,
             'line-color': '#e94560',
             'target-arrow-color': '#e94560',
           },
@@ -315,11 +327,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       optionsRef.current.onNodeClick?.(nodeId);
     });
 
-    cy.on('dbltap', 'node', (evt) => {
-      const nodeId = evt.target.id();
-      optionsRef.current.onNodeDoubleClick?.(nodeId);
-    });
-
     cy.on('mouseover', 'node', (evt) => {
       const nodeId = evt.target.id();
       evt.target.addClass('hover');
@@ -372,9 +379,21 @@ export function useCytoscape(options: UseCytoscapeOptions) {
 
     // Add new nodes
     const newNodeElements: any[] = [];
+    const externalModeVal = options.externalMode || 'hidden';
+
     for (const node of options.nodes) {
       if (!existingNodeIds.has(node.id)) {
         const weight = nodeWeightMapRef.current.get(node.id);
+        const isExt = isExternalNode(node);
+        const classes: string[] = [node.type];
+
+        if (isExt) {
+          classes.push('external');
+          if (externalModeVal === 'visible') {
+            classes.push('visible');
+          }
+        }
+
         newNodeElements.push({
           data: {
             id: node.id,
@@ -383,24 +402,40 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             path: node.path,
             language: node.language,
             weight: weight?.normalizedWeight || 0,
+            isExternal: isExt,
           },
-          classes: node.type,
+          classes: classes.join(' '),
         });
       }
     }
 
     // Add new edges
     const newEdgeElements: any[] = [];
+    const nodeMap = new Map(options.nodes.map(n => [n.id, n]));
+
     for (const edge of options.edges) {
       if (!existingEdgeIds.has(edge.id)) {
+        const sourceNode = nodeMap.get(edge.source);
+        const targetNode = nodeMap.get(edge.target);
+        const isExt = isExternalNode(sourceNode) || isExternalNode(targetNode);
+        const classes: string[] = [edge.kind];
+
+        if (isExt) {
+          classes.push('external');
+          if (externalModeVal === 'visible') {
+            classes.push('visible');
+          }
+        }
+
         newEdgeElements.push({
           data: {
             id: edge.id,
             source: edge.source,
             target: edge.target,
             kind: edge.kind,
+            isExternal: isExt,
           },
-          classes: edge.kind,
+          classes: classes.join(' '),
         });
       }
     }
@@ -425,10 +460,32 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       });
     }
 
+    // Update external classes on existing nodes/edges
+    cy.nodes().forEach((n) => {
+      if (n.data('isExternal')) {
+        n.removeClass('visible');
+        if (externalModeVal === 'visible') {
+          n.addClass('visible');
+        }
+      }
+    });
+    cy.edges().forEach((e) => {
+      if (e.data('isExternal')) {
+        e.removeClass('visible');
+        if (externalModeVal === 'visible') {
+          e.addClass('visible');
+        }
+      }
+    });
+
     // ─── Layout ───
     if (isIncremental && addedEles.length > 0) {
       // Incremental: position new file nodes near their parent module
+      // and push nearby nodes to make space (without full re-layout)
       const addedNodes = addedEles.nodes();
+      const parentPositions = new Map<string, cytoscape.Position>();
+
+      // First pass: position new nodes and collect parent positions
       addedNodes.forEach((fileNode) => {
         const parentEdge = addedEles.edges().filter((e) => e.target().id() === fileNode.id());
         const parentId = parentEdge.length > 0 ? parentEdge[0].source().id() : null;
@@ -436,11 +493,13 @@ export function useCytoscape(options: UseCytoscapeOptions) {
 
         if (parentNode && parentNode.length > 0) {
           const pos = parentNode.position();
+          parentPositions.set(fileNode.id(), pos);
+
           const parentWeight = parentId ? nodeWeightMapRef.current.get(parentId) : undefined;
           const weightFactor = 0.5 + (parentWeight?.normalizedWeight || 0.5);
           const angle = Math.random() * Math.PI * 2;
-          const baseRadius = 100 * weightFactor;
-          const radius = baseRadius + Math.random() * 60 * weightFactor;
+          const baseRadius = 80 * weightFactor;
+          const radius = baseRadius + Math.random() * 40 * weightFactor;
 
           fileNode.position({
             x: pos.x + Math.cos(angle) * radius,
@@ -449,20 +508,40 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         }
       });
 
-      // Local layout on added nodes + neighborhood
-      const neighborhood = addedNodes.neighborhood().union(addedNodes);
-      neighborhood.layout({
-        name: 'concentric',
-        concentric: (node: any) => {
-          const weight = nodeWeightMapRef.current.get(node.id());
-          return weight?.normalizedWeight || 0;
-        },
-        levelWidth: () => 0.8,
-        animate: true,
-        animationDuration: 400,
-        padding: 20,
-        fit: false,
-      } as any).run();
+      // Second pass: push nearby existing nodes away from new nodes
+      const pushDistance = 60;
+      const pushRadius = 120;
+
+      cy.nodes().forEach((existingNode) => {
+        if (addedNodes.contains(existingNode)) return;
+
+        const existingPos = existingNode.position();
+        let pushX = 0;
+        let pushY = 0;
+
+        parentPositions.forEach((parentPos) => {
+          const dx = existingPos.x - parentPos.x;
+          const dy = existingPos.y - parentPos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < pushRadius && dist > 0) {
+            const force = (pushRadius - dist) / pushRadius;
+            pushX += (dx / dist) * pushDistance * force;
+            pushY += (dy / dist) * pushDistance * force;
+          }
+        });
+
+        if (pushX !== 0 || pushY !== 0) {
+          existingNode.animate({
+            position: {
+              x: existingPos.x + pushX,
+              y: existingPos.y + pushY,
+            },
+            duration: 300,
+            easing: 'ease-out',
+          });
+        }
+      });
     } else if (!isIncremental) {
       // Full layout (initial load or depth change)
       const viewMode = options.viewMode || 'overview';
@@ -486,6 +565,24 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           padding: 50,
         } as any);
         layout.run();
+
+        // Position external nodes outside the project after layout
+        layout.on('layoutstop', () => {
+          if (externalModeVal === 'hidden') return;
+          const projNodes = cy.nodes().filter((n) => !n.data('isExternal'));
+          if (projNodes.length === 0) return;
+          const bb = projNodes.boundingBox();
+          const cx = (bb.x1 + bb.x2) / 2;
+          const cy_ = (bb.y1 + bb.y2) / 2;
+          const maxR = Math.max(bb.w, bb.h) / 2 + 150;
+          const extNodes = cy.nodes().filter((n) => n.data('isExternal'));
+          const angleStep = (2 * Math.PI) / Math.max(extNodes.length, 1);
+          extNodes.forEach((n, i) => {
+            const angle = angleStep * i;
+            const r = maxR + 50 + Math.random() * 50;
+            n.position({ x: cx + Math.cos(angle) * r, y: cy_ + Math.sin(angle) * r });
+          });
+        });
       } else {
         // Architecture mode: Grid + layer-based Y
         const nodeLayerMap = new Map<string, LayerType>();
@@ -508,10 +605,25 @@ export function useCytoscape(options: UseCytoscapeOptions) {
           });
 
           cy.animate({ fit: { eles: cy.nodes(), padding: 50 }, duration: 500 });
+
+          // Position external nodes outside the project area
+          if (externalModeVal !== 'hidden') {
+            const projNodes = cy.nodes().filter((n) => !n.data('isExternal'));
+            const extNodes = cy.nodes().filter((n) => n.data('isExternal'));
+            if (projNodes.length > 0 && extNodes.length > 0) {
+              const bb = projNodes.boundingBox();
+              const cx = (bb.x1 + bb.x2) / 2;
+              const extY = bb.y2 + 150;
+              extNodes.forEach((n, i) => {
+                const offsetX = (i - extNodes.length / 2) * 100;
+                n.position({ x: cx + offsetX, y: extY + Math.random() * 50 });
+              });
+            }
+          }
         }
       }
     }
-  }, [options.nodes, options.edges, options.nodeWeights, options.viewMode]);
+  }, [options.nodes, options.edges, options.nodeWeights, options.viewMode, options.externalMode]);
 
 
   // Fit to viewport

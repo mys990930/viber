@@ -1,6 +1,6 @@
-mod domain;
-mod infra;
-mod shared;
+pub mod domain;
+pub mod infra;
+pub mod shared;
 
 use std::sync::Mutex;
 
