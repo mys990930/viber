@@ -9,7 +9,6 @@ export function DepthToggle(): React.JSX.Element {
   const buttons: { label: string; value: GraphDepth }[] = [
     { label: 'Packages', value: 'packages' },
     { label: 'Modules', value: 'modules' },
-    { label: 'Files', value: 'files' },
   ];
 
   return (

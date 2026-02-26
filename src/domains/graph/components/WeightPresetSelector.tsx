@@ -1,6 +1,5 @@
 import { useGraphStore } from '../store';
 import type { WeightPreset } from '../store';
-import { WEIGHT_PRESETS } from '../utils/weight';
 import styles from './WeightPresetSelector.module.css';
 
 interface WeightPresetSelectorProps {

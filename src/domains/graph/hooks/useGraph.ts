@@ -3,7 +3,7 @@ import { useGraphStore } from '../store';
 import { useProjectStore } from '../../project/store';
 import { useTauriCommand, useTauriEvent } from '../../shell';
 import type { GraphData, GraphDepth } from '../../../shared/types/graph';
-import { getMockGraphByDepth } from '../mock/graph';
+import { getMockGraphByDepth, getMockExpandModule } from '../mock/graph';
 
 function isTauri(): boolean {
   if (typeof window === 'undefined') return false;
@@ -18,6 +18,7 @@ export function useGraph() {
     nodes,
     edges,
     depth,
+    expandedModules,
     selectedNode,
     hoveredEdge,
     setDepth,
@@ -27,9 +28,14 @@ export function useGraph() {
     toggleFloating,
     setNodes,
     setEdges,
+    addExpandedModule,
+    removeExpandedModule,
+    mergeFileNodes,
+    removeFileNodes,
   } = useGraphStore();
 
   const { loading, error, invoke } = useTauriCommand<GraphData>('graph_get');
+  const expandCmd = useTauriCommand<GraphData>('graph_expand_module');
 
   // Subscribe to graph:changed signal — reload filtered graph from BE
   useTauriEvent<void>('graph:changed', () => {
@@ -38,7 +44,6 @@ export function useGraph() {
   });
 
   const loadGraph = useCallback(async (d: GraphDepth) => {
-    console.log('[graph] loadGraph called, depth:', d);
     setDepth(d);
 
     if (!isTauri()) {
@@ -48,16 +53,45 @@ export function useGraph() {
       return;
     }
 
-    // Tauri: invoke command
-    console.log('[graph] invoking graph_get...');
     const res = await invoke({ depth: d });
-    console.log('[graph] graph_get result:', res);
     if (res.ok && res.data) {
-      console.log('[graph] setting nodes:', res.data.nodes?.length, 'edges:', res.data.edges?.length);
       setNodes(res.data.nodes);
       setEdges(res.data.edges);
     }
   }, [invoke, setDepth, setEdges, setNodes]);
+
+  const expandModule = useCallback(async (modulePath: string) => {
+    if (expandedModules.has(modulePath)) return;
+
+    if (!isTauri()) {
+      const mock = getMockExpandModule(modulePath);
+      if (mock) {
+        mergeFileNodes(mock.nodes, mock.edges);
+        addExpandedModule(modulePath);
+      }
+      return;
+    }
+
+    const res = await expandCmd.invoke({ modulePath });
+    if (res.ok && res.data && res.data.nodes.length > 0) {
+      mergeFileNodes(res.data.nodes, res.data.edges);
+      addExpandedModule(modulePath);
+    }
+  }, [expandCmd, expandedModules, mergeFileNodes, addExpandedModule]);
+
+  const collapseModule = useCallback((modulePath: string) => {
+    if (!expandedModules.has(modulePath)) return;
+    removeFileNodes(modulePath);
+    removeExpandedModule(modulePath);
+  }, [expandedModules, removeFileNodes, removeExpandedModule]);
+
+  const toggleModule = useCallback((modulePath: string) => {
+    if (expandedModules.has(modulePath)) {
+      collapseModule(modulePath);
+    } else {
+      expandModule(modulePath);
+    }
+  }, [expandedModules, expandModule, collapseModule]);
 
   // Browser mode: seed mock graph once
   useEffect(() => {
@@ -72,8 +106,6 @@ export function useGraph() {
   useEffect(() => {
     if (!isTauri()) return;
 
-    console.log('[graph] useEffect triggered, isProjectOpen:', isProjectOpen, 'depth:', depth);
-
     if (!isProjectOpen) {
       setNodes([]);
       setEdges([]);
@@ -87,16 +119,20 @@ export function useGraph() {
     nodes,
     edges,
     depth,
+    expandedModules,
     selectedNode,
     hoveredEdge,
     loading,
     error,
     loadGraph,
+    expandModule,
+    collapseModule,
+    toggleModule,
     selectNode: (id: string | null) => selectNode(id),
     hoverEdge: (id: string | null) => hoverEdge(id),
     toggleExternal: () => toggleExternal(),
     toggleFloating: () => toggleFloating(),
-  }), [nodes, edges, depth, selectedNode, hoveredEdge, loading, error, loadGraph, selectNode, hoverEdge, toggleExternal, toggleFloating]);
+  }), [nodes, edges, depth, expandedModules, selectedNode, hoveredEdge, loading, error, loadGraph, expandModule, collapseModule, toggleModule, selectNode, hoverEdge, toggleExternal, toggleFloating]);
 
   return api;
 }

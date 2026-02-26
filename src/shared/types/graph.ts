@@ -35,7 +35,7 @@ export interface GraphDiff {
 
 // ─── Depth ───
 
-export type GraphDepth = 'packages' | 'modules' | 'files';
+export type GraphDepth = 'packages' | 'modules';
 
 // ─── Graph Data ───
 

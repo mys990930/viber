@@ -10,6 +10,7 @@ interface GraphStore {
   nodes: GraphNode[];
   edges: GraphEdge[];
   depth: GraphDepth;
+  expandedModules: Set<string>;
   selectedNode: string | null;
   hoveredNode: string | null;
   hoveredEdge: string | null;
@@ -41,6 +42,12 @@ interface GraphStore {
   setNodes: (nodes: GraphNode[]) => void;
   setEdges: (edges: GraphEdge[]) => void;
 
+  // Lazy loading actions
+  addExpandedModule: (modulePath: string) => void;
+  removeExpandedModule: (modulePath: string) => void;
+  mergeFileNodes: (nodes: GraphNode[], edges: GraphEdge[]) => void;
+  removeFileNodes: (modulePath: string) => void;
+
   // View and weight actions
   setViewMode: (mode: ViewMode) => void;
   setWeightPreset: (preset: WeightPreset) => void;
@@ -51,6 +58,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
   nodes: [],
   edges: [],
   depth: 'modules',
+  expandedModules: new Set<string>(),
   selectedNode: null,
   hoveredNode: null,
   hoveredEdge: null,
@@ -139,6 +147,44 @@ export const useGraphStore = create<GraphStore>((set) => ({
 
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
+
+  // Lazy loading
+  addExpandedModule: (modulePath) =>
+    set((state) => {
+      const next = new Set(state.expandedModules);
+      next.add(modulePath);
+      return { expandedModules: next };
+    }),
+  removeExpandedModule: (modulePath) =>
+    set((state) => {
+      const next = new Set(state.expandedModules);
+      next.delete(modulePath);
+      return { expandedModules: next };
+    }),
+  mergeFileNodes: (newNodes, newEdges) =>
+    set((state) => {
+      const existingIds = new Set(state.nodes.map((n) => n.id));
+      const existingEdgeIds = new Set(state.edges.map((e) => e.id));
+      return {
+        nodes: [...state.nodes, ...newNodes.filter((n) => !existingIds.has(n.id))],
+        edges: [...state.edges, ...newEdges.filter((e) => !existingEdgeIds.has(e.id))],
+      };
+    }),
+  removeFileNodes: (modulePath) =>
+    set((state) => {
+      const prefix = modulePath === '.' ? '' : `${modulePath}/`;
+      const isTargetFile = (node: GraphNode) => {
+        if (node.type !== 'file') return false;
+        if (!node.path) return false;
+        if (modulePath === '.') return !node.path.includes('/');
+        return node.path.startsWith(prefix) && !node.path.slice(prefix.length).includes('/');
+      };
+      const removedIds = new Set(state.nodes.filter(isTargetFile).map((n) => n.id));
+      return {
+        nodes: state.nodes.filter((n) => !removedIds.has(n.id)),
+        edges: state.edges.filter((e) => !removedIds.has(e.source) && !removedIds.has(e.target)),
+      };
+    }),
 
   setViewMode: (viewMode) => set({ viewMode }),
   setWeightPreset: (weightPreset) => set({ weightPreset }),

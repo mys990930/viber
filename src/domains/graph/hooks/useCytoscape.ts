@@ -3,7 +3,7 @@ import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
 import type { GraphNode, GraphEdge } from '../../../shared/types/graph';
 import type { NodeWeight } from '../utils/weight';
-import { getTopHubs, getNodeSize } from '../utils/weight';
+import { getNodeSize } from '../utils/weight';
 import type { ViewMode } from '../store';
 
 // Register cose-bilkent layout
@@ -27,6 +27,7 @@ interface UseCytoscapeOptions {
   nodeWeights?: NodeWeight[];
   viewMode?: ViewMode;
   onNodeClick?: (nodeId: string) => void;
+  onNodeDoubleClick?: (nodeId: string) => void;
   onNodeHover?: (nodeId: string | null) => void;
   onEdgeHover?: (edgeId: string | null) => void;
 }
@@ -155,6 +156,15 @@ export function useCytoscape(options: UseCytoscapeOptions) {
             'border-width': 4,
           },
         },
+        // Expanded module node
+        {
+          selector: 'node.expanded',
+          style: {
+            'border-color': '#00d2ff',
+            'border-width': 3,
+            'border-style': 'dashed' as any,
+          },
+        },
         // Changed node (file modified)
         {
           selector: 'node.changed',
@@ -242,6 +252,11 @@ export function useCytoscape(options: UseCytoscapeOptions) {
       options.onNodeClick?.(nodeId);
     });
 
+    cy.on('dbltap', 'node', (evt) => {
+      const nodeId = evt.target.id();
+      options.onNodeDoubleClick?.(nodeId);
+    });
+
     cy.on('mouseover', 'node', (evt) => {
       const nodeId = evt.target.id();
       evt.target.addClass('hover');
@@ -278,7 +293,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
     // Build elements array
     const nodeElements = options.nodes.map((node) => {
       const weight = nodeWeightMapRef.current.get(node.id);
-      const size = weight ? getNodeSize(weight.normalizedWeight) : 45;
 
       return {
         data: {
@@ -326,10 +340,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
 
     if (viewMode === 'overview') {
       // Overview mode: Concentric layout with hubs in center
-      const weights = options.nodeWeights || [];
-      const { hubs } = getTopHubs(weights);
-      const hubIds = new Set(hubs.map((h) => h.nodeId));
-
       const layout = cy.layout({
         name: 'concentric',
         concentric: (node: any) => {
@@ -360,22 +370,6 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         ? { ui: 100, app: 300, domain: 500, infra: 700 }
         : { infra: 100, domain: 300, app: 500, ui: 700 };
 
-      // Group nodes by layer
-      const nodesByLayer: Record<LayerType, cytoscape.NodeSingular[]> = {
-        ui: [],
-        app: [],
-        domain: [],
-        infra: [],
-      };
-
-      cy.nodes().forEach((node) => {
-        const layer = getLayer(node.data('path'));
-        nodesByLayer[layer].push(node);
-      });
-
-      // Calculate X positions manually to distribute nodes evenly within each layer
-      let layoutConfig: any;
-
       if (cy.nodes().length > 0) {
         // First, run a grid layout to get initial positions
         const gridLayout = cy.layout({
@@ -401,6 +395,7 @@ export function useCytoscape(options: UseCytoscapeOptions) {
         // Animate to new positions
         cy.animate({
           fit: {
+            eles: cy.nodes(),
             padding: 50,
           },
           duration: 500,

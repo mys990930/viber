@@ -182,3 +182,38 @@ export function getMockGraphByDepth(depth: 'packages' | 'modules' | 'files') {
     edges: edgeFilter(selectedEdges, ids),
   };
 }
+
+/**
+ * Mock expand module — return files belonging to a module
+ */
+export function getMockExpandModule(modulePath: string): { nodes: GraphNode[]; edges: GraphEdge[] } | null {
+  const prefix = modulePath === '.' ? '' : `${modulePath}/`;
+
+  const moduleFiles = files.filter((f) => {
+    if (!f.path) return false;
+    if (modulePath === '.') return !f.path.includes('/');
+    return f.path.startsWith(prefix) && !f.path.slice(prefix.length).includes('/');
+  });
+
+  if (moduleFiles.length === 0) return null;
+
+  const fileIds = new Set(moduleFiles.map((f) => f.id));
+  const moduleId = `module:${modulePath}`;
+
+  const relatedEdges = fileEdges.filter(
+    (e) => fileIds.has(e.source) || fileIds.has(e.target),
+  );
+
+  // 모듈→파일 containment 엣지 추가
+  const containmentEdges: GraphEdge[] = moduleFiles.map((f) => ({
+    id: `contain:${moduleId}->${f.id}`,
+    source: moduleId,
+    target: f.id,
+    kind: 'file_import' as const,
+  }));
+
+  return {
+    nodes: moduleFiles,
+    edges: [...containmentEdges, ...relatedEdges],
+  };
+}
