@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 import type { GraphNode, GraphEdge, GraphDiff, GraphDepth } from '../../shared/types/graph';
+import type { NodeWeight } from './utils/weight';
+
+export type ViewMode = 'overview' | 'architecture';
+export type WeightPreset = 'balanced' | 'influence' | 'dependency';
 
 interface GraphStore {
   // State
@@ -13,6 +17,11 @@ interface GraphStore {
   floatingEnabled: boolean;
   nodeClasses: Record<string, string[]>;
   edgeClasses: Record<string, string[]>;
+
+  // View and weight state
+  viewMode: ViewMode;
+  weightPreset: WeightPreset;
+  nodeWeights: NodeWeight[];
 
   // Actions
   setDepth: (depth: GraphDepth) => void;
@@ -31,6 +40,11 @@ interface GraphStore {
 
   setNodes: (nodes: GraphNode[]) => void;
   setEdges: (edges: GraphEdge[]) => void;
+
+  // View and weight actions
+  setViewMode: (mode: ViewMode) => void;
+  setWeightPreset: (preset: WeightPreset) => void;
+  setNodeWeights: (weights: NodeWeight[]) => void;
 }
 
 export const useGraphStore = create<GraphStore>((set) => ({
@@ -44,6 +58,11 @@ export const useGraphStore = create<GraphStore>((set) => ({
   floatingEnabled: false,
   nodeClasses: {},
   edgeClasses: {},
+
+  // View and weight defaults
+  viewMode: 'overview',
+  weightPreset: 'balanced',
+  nodeWeights: [],
 
   setDepth: (depth) => set({ depth }),
 

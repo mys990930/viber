@@ -28,15 +28,34 @@
 ### Commands (FE → BE)
 | Command | Params | Response |
 |---------|--------|----------|
-| `graph_get` | `{ depth: 'packages' \| 'modules' \| 'files' }` | `{ nodes, edges }` |
-| `graph_drill_down` | `{ moduleId: string }` | `{ nodes, edges }` |
+| `graph_get` | `{ depth: 'packages' \| 'modules' }` | `{ nodes, edges }` |
+| `graph_expand_module` | `{ modulePath: string }` | `{ nodes: GraphNode[], edges: GraphEdge[] }` |
+| `graph_collapse_module` | `{ modulePath: string }` | `void` |
 | `graph_edge_symbols` | `{ edgeId: string }` | `{ symbols: Symbol[] }` |
 | `graph_node_detail` | `{ nodeId: string }` | `NodeDetail` |
 
 ### Events (BE → FE)
 | Event | Payload |
 |-------|---------|
-| `graph:updated` | `GraphDiff` |
+| `graph:changed` | `void` (시그널만, FE가 graph_get으로 재요청) |
+
+### Lazy Loading 흐름
+
+```
+1. 초기 로드: graph_get({ depth: 'modules' })
+   → 모듈 노드 + 모듈 간 의존성 엣지만 반환
+
+2. 모듈 더블클릭: graph_expand_module({ modulePath: 'modules/user' })
+   → 해당 모듈 내 파일 노드 + 파일 간 import 엣지 반환
+   → FE가 기존 그래프에 cy.add()로 추가
+   → 확장된 모듈 노드에 'expanded' CSS class 부여
+
+3. 확장된 모듈 다시 더블클릭: graph_collapse_module({ modulePath: 'modules/user' })
+   → FE가 해당 모듈의 파일 노드/엣지를 cy.remove()
+   → 'expanded' class 제거
+
+주의: files depth는 제거. 항상 modules 기반 + 선택적 확장.
+```
 
 ---
 
