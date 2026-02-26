@@ -21,7 +21,29 @@ pub trait LanguageParser: Send + Sync {
     fn language(&self) -> Language;
     fn parse_imports(&self, source: &str) -> Vec<ImportInfo>;
     fn parse_symbols(&self, source: &str) -> Vec<Symbol>;
-    fn parse_calls(&self, source: &str) -> Vec<CallInfo>;
+
+    /// Phase 3에서 확장 — 기본값 빈 Vec
+    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
+        Vec::new()
+    }
+
+    /// 무시할 디렉토리명 (언어별 추가)
+    fn excluded_dirs(&self) -> &[&str] {
+        &[]
+    }
+}
+
+/// 모든 파서가 공유하는 제외 디렉토리
+pub const COMMON_EXCLUDED_DIRS: &[&str] = &[
+    ".git", "node_modules", "target", ".viber",
+    "__pycache__", ".venv", "venv", ".tox",
+    "dist", "build", ".next", ".nuxt", ".output",
+    ".svelte-kit", ".cache", ".tmp",
+];
+
+/// 디렉토리 이름이 제외 대상인지 (공통 + 언어별)
+pub fn is_excluded_dir(dir_name: &str) -> bool {
+    COMMON_EXCLUDED_DIRS.contains(&dir_name)
 }
 
 pub struct ParserRegistry {

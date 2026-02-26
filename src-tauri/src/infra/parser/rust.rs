@@ -172,10 +172,6 @@ impl LanguageParser for RustParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        Vec::new()
-    }
 }
 
 /// pub / pub(crate) / pub(super) 접두사 제거

@@ -141,10 +141,6 @@ impl LanguageParser for TypeScriptParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        Vec::new()
-    }
 }
 
 /// JavaScript 파서 — TypeScript와 동일한 로직 사용
@@ -161,10 +157,6 @@ impl LanguageParser for JavaScriptParser {
 
     fn parse_symbols(&self, source: &str) -> Vec<Symbol> {
         TypeScriptParser.parse_symbols(source)
-    }
-
-    fn parse_calls(&self, source: &str) -> Vec<CallInfo> {
-        TypeScriptParser.parse_calls(source)
     }
 }
 

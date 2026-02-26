@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use crate::infra::parser::ParserRegistry;
+use crate::infra::parser::{ParserRegistry, COMMON_EXCLUDED_DIRS};
 use crate::shared::types::{EdgeKind, GraphEdge, GraphNode, GraphNodeType, Language};
 
 use super::service::GraphData;
@@ -15,7 +15,9 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
     collect_files(root, &mut files);
 
     // ─── 2. 모듈(디렉토리) 노드 생성 ───
+    // 파싱 가능한 파일이 있는 디렉토리만 모듈로 등록
     let mut module_ids: HashSet<String> = HashSet::new();
+    let mut modules_with_files: HashSet<String> = HashSet::new();
 
     for file in &files {
         if is_excluded(file) {
@@ -25,19 +27,41 @@ pub fn build_graph(root: &Path, parser_registry: &ParserRegistry) -> GraphData {
             Ok(p) => p,
             Err(_) => continue,
         };
-        // 파일의 부모 디렉토리 = 모듈
+
+        // 파싱 가능 여부 체크
+        let has_parser = parser_registry.detect_language(file).is_some();
+
         if let Some(parent) = relative.parent() {
             if parent.as_os_str().is_empty() {
-                // 루트 디렉토리 파일 → 루트 모듈
                 module_ids.insert(String::new());
+                if has_parser {
+                    modules_with_files.insert(String::new());
+                }
             } else {
-                // 중간 경로도 모듈로 등록 (e.g. src/utils/helpers.ts → src, src/utils)
                 let mut current = PathBuf::new();
                 for component in parent.components() {
                     current.push(component);
-                    module_ids.insert(current.to_string_lossy().to_string());
+                    let key = current.to_string_lossy().to_string();
+                    module_ids.insert(key.clone());
+                    if has_parser {
+                        modules_with_files.insert(key);
+                    }
                 }
             }
+        }
+    }
+
+    // 파싱 가능한 파일이 없는 디렉토리 제거 (단, 자식 모듈이 있으면 유지)
+    let all_module_ids: Vec<String> = module_ids.iter().cloned().collect();
+    for m in &all_module_ids {
+        if m.is_empty() { continue; }
+        if modules_with_files.contains(m) { continue; }
+        // 자식 모듈 중 파일이 있는 게 있으면 유지
+        let has_child_with_files = modules_with_files.iter().any(|child| {
+            child.starts_with(m) && child.len() > m.len() && child.as_bytes().get(m.len()) == Some(&b'/')
+        });
+        if !has_child_with_files {
+            module_ids.remove(m);
         }
     }
 
@@ -225,16 +249,10 @@ fn collect_files(dir: &Path, files: &mut Vec<PathBuf>) {
 }
 
 fn is_excluded(path: &Path) -> bool {
-    path.components().any(|c| c.as_os_str() == ".git")
-        || path.components().any(|c| c.as_os_str() == "node_modules")
-        || path.components().any(|c| c.as_os_str() == "target")
-        || path.components().any(|c| c.as_os_str() == ".viber")
-        || path.components().any(|c| c.as_os_str() == "__pycache__")
-        || path.components().any(|c| c.as_os_str() == ".venv")
-        || path.components().any(|c| c.as_os_str() == "venv")
-        || path.components().any(|c| c.as_os_str() == ".tox")
-        || path.components().any(|c| c.as_os_str() == "dist")
-        || path.components().any(|c| c.as_os_str() == "build")
+    path.components().any(|c| {
+        let name = c.as_os_str().to_string_lossy();
+        COMMON_EXCLUDED_DIRS.contains(&name.as_ref())
+    })
 }
 
 fn python_module_names(relative: &Path) -> Vec<String> {

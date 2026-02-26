@@ -137,10 +137,6 @@ impl LanguageParser for CSharpParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        Vec::new()
-    }
 }
 
 /// C# 접근 제한자/한정자 제거

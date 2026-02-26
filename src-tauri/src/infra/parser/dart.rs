@@ -146,10 +146,6 @@ impl LanguageParser for DartParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        Vec::new()
-    }
 }
 
 /// abstract / sealed 등 접두사 제거

@@ -125,10 +125,6 @@ impl LanguageParser for GoParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        Vec::new()
-    }
 }
 
 /// "..." 에서 문자열 추출 (alias 무시)

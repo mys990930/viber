@@ -98,9 +98,4 @@ impl LanguageParser for PythonParser {
 
         symbols
     }
-
-    fn parse_calls(&self, _source: &str) -> Vec<CallInfo> {
-        // Phase 1A-3 최소 구현: 호출 파싱은 Phase 3(flow)에서 확장
-        Vec::new()
-    }
 }
