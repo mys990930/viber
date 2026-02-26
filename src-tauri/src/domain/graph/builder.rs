@@ -272,7 +272,7 @@ pub fn build_graph_with_config(
             let imports = parser.parse_imports(&source_content);
             for import in imports {
                 // Try to resolve import to a file node
-                let target_id = resolve_import(&import.source, &module_name_to_file_id, relative);
+                let target_id = resolve_import(&import.source, &module_name_to_file_id, relative, *language);
                 if let Some(target_id) = target_id {
                     if target_id == source_id { continue; } // skip self-imports
 
@@ -444,32 +444,153 @@ fn get_module_id(relative: &Path, root_module_id: &str) -> String {
 fn resolve_import(
     import_source: &str,
     module_map: &HashMap<String, String>,
-    _importer_path: &Path,
+    importer_path: &Path,
+    language: Language,
 ) -> Option<String> {
-    // Direct match (e.g., "core.database" or "core/database")
+    // Direct match
     if let Some(id) = module_map.get(import_source) {
         return Some(id.clone());
     }
 
-    // Try dot-to-slash conversion (Python: "core.database" → "core/database")
+    match language {
+        Language::Python => resolve_python_import(import_source, module_map),
+        Language::TypeScript | Language::JavaScript => {
+            resolve_ts_import(import_source, module_map, importer_path)
+        }
+        Language::Rust => resolve_rust_import(import_source, module_map, importer_path),
+        _ => None,
+    }
+}
+
+fn resolve_python_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+) -> Option<String> {
     let slash_form = import_source.replace('.', "/");
     if let Some(id) = module_map.get(&slash_form) {
         return Some(id.clone());
     }
-
-    // Try with .py extension
     let py_form = format!("{slash_form}.py");
     if let Some(id) = module_map.get(&py_form) {
         return Some(id.clone());
     }
-
-    // Try as package (__init__.py)
     let init_form = format!("{slash_form}/__init__.py");
     if let Some(id) = module_map.get(&init_form) {
         return Some(id.clone());
     }
+    None
+}
+
+fn resolve_ts_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    importer_path: &Path,
+) -> Option<String> {
+    // Skip external packages (no ./ or ../)
+    if !import_source.starts_with('.') {
+        return None;
+    }
+
+    // Resolve relative path against importer's directory
+    let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
+    let resolved = normalize_path(&importer_dir.join(import_source));
+    let resolved_str = resolved.to_string_lossy().replace('\\', "/");
+
+    // Try exact match, then with extensions
+    let candidates = [
+        resolved_str.clone(),
+        format!("{resolved_str}.ts"),
+        format!("{resolved_str}.tsx"),
+        format!("{resolved_str}.js"),
+        format!("{resolved_str}.jsx"),
+        format!("{resolved_str}/index.ts"),
+        format!("{resolved_str}/index.tsx"),
+        format!("{resolved_str}/index.js"),
+    ];
+
+    for candidate in &candidates {
+        if let Some(id) = module_map.get(candidate) {
+            return Some(id.clone());
+        }
+    }
+    None
+}
+
+fn resolve_rust_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    importer_path: &Path,
+) -> Option<String> {
+    // crate::domain::graph::builder → src-tauri/src/domain/graph/builder.rs
+    // super::builder → resolve relative to importer
+    // self::something → same module
+
+    if let Some(rest) = import_source.strip_prefix("crate::") {
+        // crate:: → project-relative path
+        // Take the first meaningful segments (module path, not the item name)
+        let slash_form = rest.replace("::", "/");
+        return try_rust_path(&slash_form, module_map);
+    }
+
+    if let Some(rest) = import_source.strip_prefix("super::") {
+        let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
+        let parent = importer_dir.parent().unwrap_or(Path::new(""));
+        let slash_form = rest.replace("::", "/");
+        let resolved = normalize_path(&parent.join(&slash_form));
+        let resolved_str = resolved.to_string_lossy().replace('\\', "/");
+        return try_rust_path(&resolved_str, module_map);
+    }
+
+    if let Some(rest) = import_source.strip_prefix("self::") {
+        let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
+        let slash_form = rest.replace("::", "/");
+        let resolved = importer_dir.join(&slash_form);
+        let resolved_str = resolved.to_string_lossy().replace('\\', "/");
+        return try_rust_path(&resolved_str, module_map);
+    }
 
     None
+}
+
+/// Try various Rust file patterns: path.rs, path/mod.rs
+fn try_rust_path(
+    slash_path: &str,
+    module_map: &HashMap<String, String>,
+) -> Option<String> {
+    // Try progressively shorter prefixes (import might include item name)
+    let mut path = slash_path.to_string();
+    loop {
+        let candidates = [
+            path.clone(),
+            format!("{path}.rs"),
+            format!("{path}/mod.rs"),
+        ];
+        for c in &candidates {
+            if let Some(id) = module_map.get(c) {
+                return Some(id.clone());
+            }
+        }
+        // Strip last segment (might be an item name, not a file)
+        if let Some(pos) = path.rfind('/') {
+            path = path[..pos].to_string();
+        } else {
+            break;
+        }
+    }
+    None
+}
+
+/// Normalize a path by resolving `.` and `..` without filesystem access.
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut components = Vec::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => { components.pop(); }
+            other => components.push(other),
+        }
+    }
+    components.iter().collect()
 }
 
 fn python_module_names(relative: &Path) -> Vec<String> {
