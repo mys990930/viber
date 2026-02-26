@@ -3,6 +3,7 @@ name = "viber"
 version = "0.1.0"
 description = "Viber — Vibe Coding Modularization Helper"
 authors = ["Yooshin"]
+default-run = "viber"
 edition = "2021"
 
 [lib]
