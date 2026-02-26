@@ -86,6 +86,8 @@ export function useCytoscape(options: UseCytoscapeOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const nodeWeightMapRef = useRef<Map<string, NodeWeight>>(new Map());
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   // Build node weight map for quick lookup
   useEffect(() => {
@@ -249,34 +251,34 @@ export function useCytoscape(options: UseCytoscapeOptions) {
     // Event handlers
     cy.on('tap', 'node', (evt) => {
       const nodeId = evt.target.id();
-      options.onNodeClick?.(nodeId);
+      optionsRef.current.onNodeClick?.(nodeId);
     });
 
     cy.on('dbltap', 'node', (evt) => {
       const nodeId = evt.target.id();
-      options.onNodeDoubleClick?.(nodeId);
+      optionsRef.current.onNodeDoubleClick?.(nodeId);
     });
 
     cy.on('mouseover', 'node', (evt) => {
       const nodeId = evt.target.id();
       evt.target.addClass('hover');
-      options.onNodeHover?.(nodeId);
+      optionsRef.current.onNodeHover?.(nodeId);
     });
 
     cy.on('mouseout', 'node', (evt) => {
       evt.target.removeClass('hover');
-      options.onNodeHover?.(null);
+      optionsRef.current.onNodeHover?.(null);
     });
 
     cy.on('mouseover', 'edge', (evt) => {
       const edgeId = evt.target.id();
       evt.target.addClass('hover');
-      options.onEdgeHover?.(edgeId);
+      optionsRef.current.onEdgeHover?.(edgeId);
     });
 
     cy.on('mouseout', 'edge', (evt) => {
       evt.target.removeClass('hover');
-      options.onEdgeHover?.(null);
+      optionsRef.current.onEdgeHover?.(null);
     });
 
     return () => {

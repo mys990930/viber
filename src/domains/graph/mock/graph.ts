@@ -107,6 +107,8 @@ const files: GraphNode[] = [
   py('tests:test_gacha', 'test_gacha.py', 'tests/test_gacha.py'),
   // alembic
   py('alembic:env', 'env.py', 'alembic/env.py'),
+  // modules 직속 — 모든 서브모듈 모델 집약
+  py('modules:models', 'models.py', 'modules/models.py'),
 ];
 
 // ─── Package Dependencies ───
@@ -214,6 +216,13 @@ const fileEdges: GraphEdge[] = [
   { id: 'fi:conftest->db', source: 'file:tests/conftest.py', target: 'file:core/database.py', kind: 'file_import' },
   // alembic → core
   { id: 'fi:alembic_env->db', source: 'file:alembic/env.py', target: 'file:core/database.py', kind: 'file_import' },
+  // modules/models.py → 각 서브모듈 models (cross-module 집약)
+  { id: 'fi:mods_m->user_m', source: 'file:modules/models.py', target: 'file:modules/user/models.py', kind: 'file_import' },
+  { id: 'fi:mods_m->gacha_m', source: 'file:modules/models.py', target: 'file:modules/gacha/models.py', kind: 'file_import' },
+  { id: 'fi:mods_m->shop_m', source: 'file:modules/models.py', target: 'file:modules/shop/models.py', kind: 'file_import' },
+  { id: 'fi:mods_m->event_m', source: 'file:modules/models.py', target: 'file:modules/event/models.py', kind: 'file_import' },
+  { id: 'fi:mods_m->notice_m', source: 'file:modules/models.py', target: 'file:modules/notice/models.py', kind: 'file_import' },
+  { id: 'fi:mods_m->uel_m', source: 'file:modules/models.py', target: 'file:modules/user_event_log/models.py', kind: 'file_import' },
 ];
 
 // ─── Export ───
