@@ -20,7 +20,7 @@ const packages: GraphNode[] = [
 
 // ─── Modules & Groups ───
 const modules: GraphNode[] = [
-  { id: 'module:.', type: 'module', label: 'barber.io', path: '.' },
+  { id: 'module:.', type: 'group', label: 'barber.io', path: '.' },
   { id: 'module:core', type: 'module', label: 'core', path: 'core' },
   { id: 'module:modules', type: 'group', label: 'modules', path: 'modules' },
   { id: 'module:modules/admin', type: 'module', label: 'admin', path: 'modules/admin' },
