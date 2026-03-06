@@ -6,6 +6,22 @@ export type ViewMode = 'overview' | 'architecture';
 export type WeightPreset = 'balanced' | 'influence' | 'dependency';
 export type ExternalMode = 'hidden' | 'dim' | 'visible';
 
+interface NodePosition {
+  x: number;
+  y: number;
+}
+
+// Undo/Redo action types
+type ActionType = 'move' | 'expand' | 'collapse';
+
+export interface HistoryAction {
+  type: ActionType;
+  nodeId?: string;
+  nodeIds?: string[];
+  positions?: Record<string, NodePosition>; // nodeId -> position
+  timestamp: number;
+}
+
 interface GraphStore {
   // State
   nodes: GraphNode[];
@@ -21,10 +37,18 @@ interface GraphStore {
   nodeClasses: Record<string, string[]>;
   edgeClasses: Record<string, string[]>;
 
+  // Layout preservation - 원래 위치 저장
+  savedPositions: Map<string, NodePosition>;
+
+  // Undo/Redo history
+  undoStack: HistoryAction[];
+  redoStack: HistoryAction[];
+
   // View and weight state
   viewMode: ViewMode;
   weightPreset: WeightPreset;
   nodeWeights: NodeWeight[];
+  resetLayoutVersion: number;
 
   // Actions
   setDepth: (depth: GraphDepth) => void;
@@ -56,6 +80,17 @@ interface GraphStore {
   setWeightPreset: (preset: WeightPreset) => void;
   setNodeWeights: (weights: NodeWeight[]) => void;
   setExternalMode: (mode: ExternalMode) => void;
+  requestLayoutReset: () => void;
+
+  // Layout preservation actions
+  saveNodePosition: (nodeId: string, pos: NodePosition) => void;
+  removeSavedPosition: (nodeId: string) => void;
+
+  // Undo/Redo actions
+  pushAction: (action: HistoryAction) => void;
+  undo: () => void;
+  redo: () => void;
+  clearHistory: () => void;
 }
 
 export const useGraphStore = create<GraphStore>((set) => ({
@@ -68,14 +103,20 @@ export const useGraphStore = create<GraphStore>((set) => ({
   hoveredNode: null,
   hoveredEdge: null,
   externalMode: 'hidden',
-  floatingEnabled: false,
+  floatingEnabled: true,
   nodeClasses: {},
   edgeClasses: {},
+  savedPositions: new Map<string, NodePosition>(),
+
+  // Undo/Redo stacks
+  undoStack: [],
+  redoStack: [],
 
   // View and weight defaults
   viewMode: 'overview',
   weightPreset: 'balanced',
   nodeWeights: [],
+  resetLayoutVersion: 0,
 
   setDepth: (depth) => set({ depth }),
 
@@ -208,6 +249,47 @@ export const useGraphStore = create<GraphStore>((set) => ({
   setWeightPreset: (weightPreset) => set({ weightPreset }),
   setNodeWeights: (nodeWeights) => set({ nodeWeights }),
   setExternalMode: (externalMode) => set({ externalMode }),
+  requestLayoutReset: () => set((state) => ({ resetLayoutVersion: state.resetLayoutVersion + 1 })),
+
+  // Layout preservation
+  saveNodePosition: (nodeId, pos) =>
+    set((state) => {
+      const next = new Map(state.savedPositions);
+      next.set(nodeId, pos);
+      return { savedPositions: next };
+    }),
+  removeSavedPosition: (nodeId) =>
+    set((state) => {
+      const next = new Map(state.savedPositions);
+      next.delete(nodeId);
+      return { savedPositions: next };
+    }),
+
+  // Undo/Redo actions
+  pushAction: (action) =>
+    set((state) => ({
+      undoStack: [...state.undoStack.slice(-49), action],
+      redoStack: [],
+    })),
+  undo: () =>
+    set((state) => {
+      if (state.undoStack.length === 0) return state;
+      const action = state.undoStack[state.undoStack.length - 1];
+      return {
+        undoStack: state.undoStack.slice(0, -1),
+        redoStack: [action, ...state.redoStack],
+      };
+    }),
+  redo: () =>
+    set((state) => {
+      if (state.redoStack.length === 0) return state;
+      const action = state.redoStack[0];
+      return {
+        undoStack: [...state.undoStack, action],
+        redoStack: state.redoStack.slice(1),
+      };
+    }),
+  clearHistory: () => set({ undoStack: [], redoStack: [] }),
 }));
 
 export default useGraphStore;

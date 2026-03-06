@@ -4,7 +4,7 @@ use git2::{BranchType, Repository, Signature, Status, StatusOptions};
 
 use crate::shared::error::ViberError;
 use crate::shared::event::{EventBus, ViberEvent};
-use crate::shared::types::GitStatus;
+use crate::shared::types::{CommitResult, GitStatus};
 
 pub struct GitService {
     bus: EventBus,
@@ -106,7 +106,13 @@ impl GitService {
         Ok(status)
     }
 
-    pub fn commit(&self, repo_root: &Path, message: &str) -> Result<String, ViberError> {
+    pub fn commit(
+        &self,
+        repo_root: &Path,
+        message: Option<String>,
+        paths: Option<Vec<String>>,
+        _push: Option<bool>,
+    ) -> Result<CommitResult, ViberError> {
         let repo = open_repo(repo_root)?;
 
         let sig = repo
@@ -117,6 +123,20 @@ impl GitService {
         let mut index = repo
             .index()
             .map_err(|e| ViberError::GitError { message: e.message().to_string() })?;
+
+        if let Some(paths) = paths {
+            for path in paths {
+                index
+                    .add_path(Path::new(&path))
+                    .map_err(|e| ViberError::GitError { message: e.message().to_string() })?;
+            }
+            index
+                .write()
+                .map_err(|e| ViberError::GitError { message: e.message().to_string() })?;
+        }
+
+        let commit_message = message.unwrap_or_else(|| "chore: update changes".to_string());
+
         let tree_id = index
             .write_tree()
             .map_err(|e| ViberError::GitError { message: e.message().to_string() })?;
@@ -129,18 +149,21 @@ impl GitService {
                 let parent = head
                     .peel_to_commit()
                     .map_err(|e| ViberError::GitError { message: e.message().to_string() })?;
-                repo.commit(Some("HEAD"), &sig, &sig, message, &tree, &[&parent])
+                repo.commit(Some("HEAD"), &sig, &sig, &commit_message, &tree, &[&parent])
                     .map_err(|e| ViberError::GitError { message: e.message().to_string() })?
             }
             Err(_) => repo
-                .commit(Some("HEAD"), &sig, &sig, message, &tree, &[])
+                .commit(Some("HEAD"), &sig, &sig, &commit_message, &tree, &[])
                 .map_err(|e| ViberError::GitError { message: e.message().to_string() })?,
         };
 
         let status = self.status(repo_root)?;
         self.bus.emit(ViberEvent::GitStatusChanged(status));
 
-        Ok(oid.to_string())
+        Ok(CommitResult {
+            hash: oid.to_string(),
+            message: commit_message,
+        })
     }
 
     pub fn branches(&self, repo_root: &Path) -> Result<Vec<String>, ViberError> {

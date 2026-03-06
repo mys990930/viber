@@ -1,0 +1,2359 @@
+{
+  "edges": [
+    {
+      "id": "contains:module:.->module:src",
+      "kind": "Contains",
+      "source": "module:.",
+      "target": "module:src"
+    },
+    {
+      "id": "contains:module:.->module:src-tauri",
+      "kind": "Contains",
+      "source": "module:.",
+      "target": "module:src-tauri"
+    },
+    {
+      "id": "contains:module:src-tauri->module:src-tauri/src",
+      "kind": "Contains",
+      "source": "module:src-tauri",
+      "target": "module:src-tauri/src"
+    },
+    {
+      "id": "contains:module:src-tauri/src->module:src-tauri/src/bin",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "module:src-tauri/src/bin"
+    },
+    {
+      "id": "contains:module:src-tauri/src->module:src-tauri/src/domain",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "module:src-tauri/src/domain"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain->module:src-tauri/src/domain/git",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain",
+      "target": "module:src-tauri/src/domain/git"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain->module:src-tauri/src/domain/graph",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain",
+      "target": "module:src-tauri/src/domain/graph"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain->module:src-tauri/src/domain/project",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain",
+      "target": "module:src-tauri/src/domain/project"
+    },
+    {
+      "id": "contains:module:src-tauri/src->module:src-tauri/src/infra",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "module:src-tauri/src/infra"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra->module:src-tauri/src/infra/parser",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra",
+      "target": "module:src-tauri/src/infra/parser"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra->module:src-tauri/src/infra/watcher",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra",
+      "target": "module:src-tauri/src/infra/watcher"
+    },
+    {
+      "id": "contains:module:src-tauri/src->module:src-tauri/src/shared",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "module:src-tauri/src/shared"
+    },
+    {
+      "id": "contains:module:src->module:src/domains",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "module:src/domains"
+    },
+    {
+      "id": "contains:module:src/domains->module:src/domains/git",
+      "kind": "Contains",
+      "source": "module:src/domains",
+      "target": "module:src/domains/git"
+    },
+    {
+      "id": "contains:module:src/domains/git->module:src/domains/git/components",
+      "kind": "Contains",
+      "source": "module:src/domains/git",
+      "target": "module:src/domains/git/components"
+    },
+    {
+      "id": "contains:module:src/domains/git->module:src/domains/git/hooks",
+      "kind": "Contains",
+      "source": "module:src/domains/git",
+      "target": "module:src/domains/git/hooks"
+    },
+    {
+      "id": "contains:module:src/domains->module:src/domains/graph",
+      "kind": "Contains",
+      "source": "module:src/domains",
+      "target": "module:src/domains/graph"
+    },
+    {
+      "id": "contains:module:src/domains/graph->module:src/domains/graph/components",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/components"
+    },
+    {
+      "id": "contains:module:src/domains/graph->module:src/domains/graph/hooks",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/hooks"
+    },
+    {
+      "id": "contains:module:src/domains/graph->module:src/domains/graph/mock",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/mock"
+    },
+    {
+      "id": "contains:module:src/domains/graph->module:src/domains/graph/styles",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/styles"
+    },
+    {
+      "id": "contains:module:src/domains/graph->module:src/domains/graph/utils",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/utils"
+    },
+    {
+      "id": "contains:module:src/domains->module:src/domains/project",
+      "kind": "Contains",
+      "source": "module:src/domains",
+      "target": "module:src/domains/project"
+    },
+    {
+      "id": "contains:module:src/domains/project->module:src/domains/project/components",
+      "kind": "Contains",
+      "source": "module:src/domains/project",
+      "target": "module:src/domains/project/components"
+    },
+    {
+      "id": "contains:module:src/domains/project->module:src/domains/project/hooks",
+      "kind": "Contains",
+      "source": "module:src/domains/project",
+      "target": "module:src/domains/project/hooks"
+    },
+    {
+      "id": "contains:module:src/domains->module:src/domains/shell",
+      "kind": "Contains",
+      "source": "module:src/domains",
+      "target": "module:src/domains/shell"
+    },
+    {
+      "id": "contains:module:src/domains/shell->module:src/domains/shell/components",
+      "kind": "Contains",
+      "source": "module:src/domains/shell",
+      "target": "module:src/domains/shell/components"
+    },
+    {
+      "id": "contains:module:src/domains/shell->module:src/domains/shell/hooks",
+      "kind": "Contains",
+      "source": "module:src/domains/shell",
+      "target": "module:src/domains/shell/hooks"
+    },
+    {
+      "id": "contains:module:src/domains/shell->module:src/domains/shell/styles",
+      "kind": "Contains",
+      "source": "module:src/domains/shell",
+      "target": "module:src/domains/shell/styles"
+    },
+    {
+      "id": "contains:module:src->module:src/shared",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "module:src/shared"
+    },
+    {
+      "id": "contains:module:src/shared->module:src/shared/types",
+      "kind": "Contains",
+      "source": "module:src/shared",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "contains:module:src->module:src/types",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "module:src/types"
+    },
+    {
+      "id": "contains:module:src-tauri->file:src-tauri/build.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri",
+      "target": "file:src-tauri/build.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/watcher->file:src-tauri/src/infra/watcher/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/watcher",
+      "target": "file:src-tauri/src/infra/watcher/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/dart.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/dart.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/typescript.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/typescript.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/rust.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/rust.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/go.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/go.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/python.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/python.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra/parser->file:src-tauri/src/infra/parser/csharp.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra/parser",
+      "target": "file:src-tauri/src/infra/parser/csharp.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/infra->file:src-tauri/src/infra/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/infra",
+      "target": "file:src-tauri/src/infra/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/bin->file:src-tauri/src/bin/parse_project.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/bin",
+      "target": "file:src-tauri/src/bin/parse_project.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src->file:src-tauri/src/lib.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "file:src-tauri/src/lib.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/shared->file:src-tauri/src/shared/types.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/shared",
+      "target": "file:src-tauri/src/shared/types.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/shared->file:src-tauri/src/shared/error.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/shared",
+      "target": "file:src-tauri/src/shared/error.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/shared->file:src-tauri/src/shared/event.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/shared",
+      "target": "file:src-tauri/src/shared/event.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/shared->file:src-tauri/src/shared/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/shared",
+      "target": "file:src-tauri/src/shared/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src->file:src-tauri/src/main.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src",
+      "target": "file:src-tauri/src/main.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/graph->file:src-tauri/src/domain/graph/service.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "file:src-tauri/src/domain/graph/service.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/graph->file:src-tauri/src/domain/graph/commands.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "file:src-tauri/src/domain/graph/commands.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/graph->file:src-tauri/src/domain/graph/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "file:src-tauri/src/domain/graph/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/graph->file:src-tauri/src/domain/graph/diff.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "file:src-tauri/src/domain/graph/diff.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/graph->file:src-tauri/src/domain/graph/builder.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "file:src-tauri/src/domain/graph/builder.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/project->file:src-tauri/src/domain/project/config.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/project",
+      "target": "file:src-tauri/src/domain/project/config.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/project->file:src-tauri/src/domain/project/service.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/project",
+      "target": "file:src-tauri/src/domain/project/service.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/project->file:src-tauri/src/domain/project/commands.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/project",
+      "target": "file:src-tauri/src/domain/project/commands.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/project->file:src-tauri/src/domain/project/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/project",
+      "target": "file:src-tauri/src/domain/project/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain->file:src-tauri/src/domain/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/git->file:src-tauri/src/domain/git/service.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/git",
+      "target": "file:src-tauri/src/domain/git/service.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/git->file:src-tauri/src/domain/git/commands.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/git",
+      "target": "file:src-tauri/src/domain/git/commands.rs"
+    },
+    {
+      "id": "contains:module:src-tauri/src/domain/git->file:src-tauri/src/domain/git/mod.rs",
+      "kind": "Contains",
+      "source": "module:src-tauri/src/domain/git",
+      "target": "file:src-tauri/src/domain/git/mod.rs"
+    },
+    {
+      "id": "contains:module:.->file:vite.config.ts",
+      "kind": "Contains",
+      "source": "module:.",
+      "target": "file:vite.config.ts"
+    },
+    {
+      "id": "contains:module:src->file:src/App.tsx",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "file:src/App.tsx"
+    },
+    {
+      "id": "contains:module:src->file:src/main.tsx",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "file:src/main.tsx"
+    },
+    {
+      "id": "contains:module:src/types->file:src/types/cytoscape-cose-bilkent.d.ts",
+      "kind": "Contains",
+      "source": "module:src/types",
+      "target": "file:src/types/cytoscape-cose-bilkent.d.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell/styles->file:src/domains/shell/styles/colors.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/styles",
+      "target": "file:src/domains/shell/styles/colors.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell/components->file:src/domains/shell/components/Toolbar.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/components",
+      "target": "file:src/domains/shell/components/Toolbar.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/shell/components->file:src/domains/shell/components/StatusBar.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/components",
+      "target": "file:src/domains/shell/components/StatusBar.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/shell/components->file:src/domains/shell/components/Layout.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/components",
+      "target": "file:src/domains/shell/components/Layout.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/shell/components->file:src/domains/shell/components/Sidebar.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/components",
+      "target": "file:src/domains/shell/components/Sidebar.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/shell/hooks->file:src/domains/shell/hooks/useTauriCommand.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/hooks",
+      "target": "file:src/domains/shell/hooks/useTauriCommand.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell/hooks->file:src/domains/shell/hooks/useUndoRedo.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/hooks",
+      "target": "file:src/domains/shell/hooks/useUndoRedo.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell/hooks->file:src/domains/shell/hooks/useTauriEvent.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell/hooks",
+      "target": "file:src/domains/shell/hooks/useTauriEvent.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell->file:src/domains/shell/index.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "contains:module:src/domains/shell->file:src/domains/shell/store.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/shell",
+      "target": "file:src/domains/shell/store.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/mock->file:src/domains/graph/mock/graph.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/mock",
+      "target": "file:src/domains/graph/mock/graph.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/utils->file:src/domains/graph/utils/weight.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/utils",
+      "target": "file:src/domains/graph/utils/weight.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/styles->file:src/domains/graph/styles/graph-theme.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/styles",
+      "target": "file:src/domains/graph/styles/graph-theme.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/NodeDetail.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/NodeDetail.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/DepthToggle.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/DepthToggle.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/NodeTooltip.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/NodeTooltip.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/EdgeDetail.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/EdgeDetail.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/ExternalModeToggle.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/ExternalModeToggle.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/UndoRedoButtons.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/UndoRedoButtons.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/WeightPresetSelector.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/WeightPresetSelector.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/GraphCanvas.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/GraphCanvas.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/components->file:src/domains/graph/components/ViewModeToggle.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/components",
+      "target": "file:src/domains/graph/components/ViewModeToggle.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/graph/hooks->file:src/domains/graph/hooks/useCytoscape.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/hooks",
+      "target": "file:src/domains/graph/hooks/useCytoscape.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/hooks->file:src/domains/graph/hooks/useSymbols.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/hooks",
+      "target": "file:src/domains/graph/hooks/useSymbols.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph/hooks->file:src/domains/graph/hooks/useGraph.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph/hooks",
+      "target": "file:src/domains/graph/hooks/useGraph.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph->file:src/domains/graph/index.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "file:src/domains/graph/index.ts"
+    },
+    {
+      "id": "contains:module:src/domains/graph->file:src/domains/graph/store.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/graph",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "contains:module:src/domains/project/components->file:src/domains/project/components/ProjectSelector.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/project/components",
+      "target": "file:src/domains/project/components/ProjectSelector.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/project/components->file:src/domains/project/components/SettingsPanel.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/project/components",
+      "target": "file:src/domains/project/components/SettingsPanel.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/project/hooks->file:src/domains/project/hooks/useProject.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/project/hooks",
+      "target": "file:src/domains/project/hooks/useProject.ts"
+    },
+    {
+      "id": "contains:module:src/domains/project->file:src/domains/project/index.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/project",
+      "target": "file:src/domains/project/index.ts"
+    },
+    {
+      "id": "contains:module:src/domains/project->file:src/domains/project/store.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/project",
+      "target": "file:src/domains/project/store.ts"
+    },
+    {
+      "id": "contains:module:src/domains/git/components->file:src/domains/git/components/GitPanel.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/git/components",
+      "target": "file:src/domains/git/components/GitPanel.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/git/components->file:src/domains/git/components/BranchSelect.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/git/components",
+      "target": "file:src/domains/git/components/BranchSelect.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/git/components->file:src/domains/git/components/FileStaging.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/git/components",
+      "target": "file:src/domains/git/components/FileStaging.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/git/components->file:src/domains/git/components/CommitForm.tsx",
+      "kind": "Contains",
+      "source": "module:src/domains/git/components",
+      "target": "file:src/domains/git/components/CommitForm.tsx"
+    },
+    {
+      "id": "contains:module:src/domains/git/hooks->file:src/domains/git/hooks/useGit.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/git/hooks",
+      "target": "file:src/domains/git/hooks/useGit.ts"
+    },
+    {
+      "id": "contains:module:src/domains/git->file:src/domains/git/index.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/git",
+      "target": "file:src/domains/git/index.ts"
+    },
+    {
+      "id": "contains:module:src/domains/git->file:src/domains/git/store.ts",
+      "kind": "Contains",
+      "source": "module:src/domains/git",
+      "target": "file:src/domains/git/store.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/project.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/score.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/score.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/guardrail.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/guardrail.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/watcher.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/watcher.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/symbol.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/symbol.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/graph.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/index.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/index.ts"
+    },
+    {
+      "id": "contains:module:src/shared/types->file:src/shared/types/git.ts",
+      "kind": "Contains",
+      "source": "module:src/shared/types",
+      "target": "file:src/shared/types/git.ts"
+    },
+    {
+      "id": "contains:module:src->file:src/vite-env.d.ts",
+      "kind": "Contains",
+      "source": "module:src",
+      "target": "file:src/vite-env.d.ts"
+    },
+    {
+      "id": "file_import:file:src-tauri/src/domain/graph/commands.rs->file:src-tauri/src/domain/mod.rs",
+      "kind": "FileImport",
+      "source": "file:src-tauri/src/domain/graph/commands.rs",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "file_import:file:src-tauri/src/domain/graph/diff.rs->file:src-tauri/src/domain/mod.rs",
+      "kind": "FileImport",
+      "source": "file:src-tauri/src/domain/graph/diff.rs",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "file_import:file:src-tauri/src/domain/graph/builder.rs->file:src-tauri/src/domain/mod.rs",
+      "kind": "FileImport",
+      "source": "file:src-tauri/src/domain/graph/builder.rs",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "file_import:file:src-tauri/src/domain/project/commands.rs->file:src-tauri/src/domain/mod.rs",
+      "kind": "FileImport",
+      "source": "file:src-tauri/src/domain/project/commands.rs",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "file_import:file:src-tauri/src/domain/git/commands.rs->file:src-tauri/src/domain/mod.rs",
+      "kind": "FileImport",
+      "source": "file:src-tauri/src/domain/git/commands.rs",
+      "target": "file:src-tauri/src/domain/mod.rs"
+    },
+    {
+      "id": "file_import:file:src/App.tsx->file:src/domains/shell/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/App.tsx",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "file_import:file:src/App.tsx->file:src/domains/project/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/App.tsx",
+      "target": "file:src/domains/project/index.ts"
+    },
+    {
+      "id": "file_import:file:src/App.tsx->file:src/domains/graph/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/App.tsx",
+      "target": "file:src/domains/graph/index.ts"
+    },
+    {
+      "id": "file_import:file:src/App.tsx->file:src/domains/git/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/App.tsx",
+      "target": "file:src/domains/git/index.ts"
+    },
+    {
+      "id": "file_import:file:src/main.tsx->file:src/App.tsx",
+      "kind": "FileImport",
+      "source": "file:src/main.tsx",
+      "target": "file:src/App.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/components/Toolbar.tsx->file:src/domains/shell/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/components/Toolbar.tsx",
+      "target": "file:src/domains/shell/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/components/StatusBar.tsx->file:src/domains/git/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/components/StatusBar.tsx",
+      "target": "file:src/domains/git/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/components/Layout.tsx->file:src/domains/shell/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/components/Layout.tsx",
+      "target": "file:src/domains/shell/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/components/Layout.tsx->file:src/domains/shell/components/Toolbar.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/components/Layout.tsx",
+      "target": "file:src/domains/shell/components/Toolbar.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/components/Layout.tsx->file:src/domains/shell/components/StatusBar.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/components/Layout.tsx",
+      "target": "file:src/domains/shell/components/StatusBar.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/components/Layout.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/components/Layout.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/components/Toolbar.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/components/Toolbar.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/components/StatusBar.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/components/StatusBar.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/components/Sidebar.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/components/Sidebar.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/hooks/useTauriCommand.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/hooks/useTauriCommand.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/hooks/useTauriEvent.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/hooks/useTauriEvent.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/shell/index.ts->file:src/domains/shell/hooks/useUndoRedo.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/shell/index.ts",
+      "target": "file:src/domains/shell/hooks/useUndoRedo.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/mock/graph.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/mock/graph.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/utils/weight.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/utils/weight.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/NodeDetail.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/NodeDetail.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/DepthToggle.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/DepthToggle.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/DepthToggle.tsx->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/DepthToggle.tsx",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/NodeTooltip.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/NodeTooltip.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/EdgeDetail.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/EdgeDetail.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/EdgeDetail.tsx->file:src/domains/graph/hooks/useSymbols.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/EdgeDetail.tsx",
+      "target": "file:src/domains/graph/hooks/useSymbols.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/ExternalModeToggle.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/ExternalModeToggle.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/UndoRedoButtons.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/UndoRedoButtons.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/WeightPresetSelector.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/WeightPresetSelector.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/hooks/useGraph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/hooks/useGraph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/hooks/useCytoscape.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/hooks/useCytoscape.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/components/ViewModeToggle.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/components/ViewModeToggle.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/components/WeightPresetSelector.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/components/WeightPresetSelector.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/components/ExternalModeToggle.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/components/ExternalModeToggle.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/GraphCanvas.tsx->file:src/domains/graph/components/UndoRedoButtons.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "target": "file:src/domains/graph/components/UndoRedoButtons.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/components/ViewModeToggle.tsx->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/components/ViewModeToggle.tsx",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useCytoscape.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useCytoscape.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useCytoscape.ts->file:src/domains/graph/utils/weight.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useCytoscape.ts",
+      "target": "file:src/domains/graph/utils/weight.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useCytoscape.ts->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useCytoscape.ts",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useSymbols.ts->file:src/domains/shell/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useSymbols.ts",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useGraph.ts->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useGraph.ts",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useGraph.ts->file:src/domains/project/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useGraph.ts",
+      "target": "file:src/domains/project/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useGraph.ts->file:src/domains/shell/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useGraph.ts",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useGraph.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useGraph.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/hooks/useGraph.ts->file:src/domains/graph/mock/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/hooks/useGraph.ts",
+      "target": "file:src/domains/graph/mock/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/hooks/useGraph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/hooks/useGraph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/hooks/useCytoscape.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/hooks/useCytoscape.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/hooks/useSymbols.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/hooks/useSymbols.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/GraphCanvas.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/GraphCanvas.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/DepthToggle.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/DepthToggle.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/ViewModeToggle.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/ViewModeToggle.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/WeightPresetSelector.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/WeightPresetSelector.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/ExternalModeToggle.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/ExternalModeToggle.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/UndoRedoButtons.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/UndoRedoButtons.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/NodeTooltip.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/NodeTooltip.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/NodeDetail.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/NodeDetail.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/components/EdgeDetail.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/components/EdgeDetail.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/index.ts->file:src/domains/graph/utils/weight.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/index.ts",
+      "target": "file:src/domains/graph/utils/weight.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/store.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/store.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/graph/store.ts->file:src/domains/graph/utils/weight.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/graph/store.ts",
+      "target": "file:src/domains/graph/utils/weight.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/components/ProjectSelector.tsx->file:src/domains/project/hooks/useProject.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/components/ProjectSelector.tsx",
+      "target": "file:src/domains/project/hooks/useProject.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/components/SettingsPanel.tsx->file:src/domains/project/hooks/useProject.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/components/SettingsPanel.tsx",
+      "target": "file:src/domains/project/hooks/useProject.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/components/SettingsPanel.tsx->file:src/shared/types/project.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/components/SettingsPanel.tsx",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/hooks/useProject.ts->file:src/domains/shell/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/hooks/useProject.ts",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/hooks/useProject.ts->file:src/domains/project/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/hooks/useProject.ts",
+      "target": "file:src/domains/project/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/hooks/useProject.ts->file:src/shared/types/project.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/hooks/useProject.ts",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/hooks/useProject.ts->file:src/shared/types/watcher.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/hooks/useProject.ts",
+      "target": "file:src/shared/types/watcher.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/index.ts->file:src/domains/project/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/index.ts",
+      "target": "file:src/domains/project/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/index.ts->file:src/domains/project/hooks/useProject.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/index.ts",
+      "target": "file:src/domains/project/hooks/useProject.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/project/index.ts->file:src/domains/project/components/ProjectSelector.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/index.ts",
+      "target": "file:src/domains/project/components/ProjectSelector.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/project/index.ts->file:src/domains/project/components/SettingsPanel.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/index.ts",
+      "target": "file:src/domains/project/components/SettingsPanel.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/project/store.ts->file:src/shared/types/project.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/project/store.ts",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/components/GitPanel.tsx->file:src/domains/git/hooks/useGit.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/components/GitPanel.tsx",
+      "target": "file:src/domains/git/hooks/useGit.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/components/GitPanel.tsx->file:src/domains/git/components/BranchSelect.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/components/GitPanel.tsx",
+      "target": "file:src/domains/git/components/BranchSelect.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/components/GitPanel.tsx->file:src/domains/git/components/CommitForm.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/components/GitPanel.tsx",
+      "target": "file:src/domains/git/components/CommitForm.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/components/GitPanel.tsx->file:src/domains/git/components/FileStaging.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/components/GitPanel.tsx",
+      "target": "file:src/domains/git/components/FileStaging.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/components/BranchSelect.tsx->file:src/shared/types/git.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/components/BranchSelect.tsx",
+      "target": "file:src/shared/types/git.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/hooks/useGit.ts->file:src/domains/shell/index.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/hooks/useGit.ts",
+      "target": "file:src/domains/shell/index.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/hooks/useGit.ts->file:src/domains/git/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/hooks/useGit.ts",
+      "target": "file:src/domains/git/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/hooks/useGit.ts->file:src/shared/types/git.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/hooks/useGit.ts",
+      "target": "file:src/shared/types/git.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/store.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/store.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/hooks/useGit.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/hooks/useGit.ts"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/components/GitPanel.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/components/GitPanel.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/components/BranchSelect.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/components/BranchSelect.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/components/CommitForm.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/components/CommitForm.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/index.ts->file:src/domains/git/components/FileStaging.tsx",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/index.ts",
+      "target": "file:src/domains/git/components/FileStaging.tsx"
+    },
+    {
+      "id": "file_import:file:src/domains/git/store.ts->file:src/shared/types/git.ts",
+      "kind": "FileImport",
+      "source": "file:src/domains/git/store.ts",
+      "target": "file:src/shared/types/git.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/graph.ts->file:src/shared/types/project.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/graph.ts",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/project.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/project.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/graph.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/graph.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/watcher.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/watcher.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/git.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/git.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/guardrail.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/guardrail.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/score.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/score.ts"
+    },
+    {
+      "id": "file_import:file:src/shared/types/index.ts->file:src/shared/types/symbol.ts",
+      "kind": "FileImport",
+      "source": "file:src/shared/types/index.ts",
+      "target": "file:src/shared/types/symbol.ts"
+    },
+    {
+      "id": "module_import:module:src/domains/project/hooks->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project/hooks",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/graph->module:src/domains/graph/utils",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/utils"
+    },
+    {
+      "id": "module_import:module:src/domains/project/hooks->module:src/domains/project",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project/hooks",
+      "target": "module:src/domains/project"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/mock->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/mock",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/git/hooks->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git/hooks",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/git->module:src/domains/git/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git",
+      "target": "module:src/domains/git/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src->module:src/domains/shell",
+      "kind": "ModuleImport",
+      "source": "module:src",
+      "target": "module:src/domains/shell"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/utils->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/utils",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/domains/shell",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/domains/shell"
+    },
+    {
+      "id": "module_import:module:src/domains/git/components->module:src/domains/git/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git/components",
+      "target": "module:src/domains/git/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/components->module:src/domains/graph",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/components",
+      "target": "module:src/domains/graph"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/domains/project",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/domains/project"
+    },
+    {
+      "id": "module_import:module:src/domains/git/hooks->module:src/domains/shell",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git/hooks",
+      "target": "module:src/domains/shell"
+    },
+    {
+      "id": "module_import:module:src/domains/project->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/domains/graph/mock",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/domains/graph/mock"
+    },
+    {
+      "id": "module_import:module:src/domains/graph->module:src/domains/graph/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/project->module:src/domains/project/components",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project",
+      "target": "module:src/domains/project/components"
+    },
+    {
+      "id": "module_import:module:src/domains/project/components->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project/components",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src->module:src/domains/project",
+      "kind": "ModuleImport",
+      "source": "module:src",
+      "target": "module:src/domains/project"
+    },
+    {
+      "id": "module_import:module:src/domains/shell->module:src/domains/shell/components",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/shell",
+      "target": "module:src/domains/shell/components"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/components->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/components",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src->module:src/domains/git",
+      "kind": "ModuleImport",
+      "source": "module:src",
+      "target": "module:src/domains/git"
+    },
+    {
+      "id": "module_import:module:src/domains/shell/components->module:src/domains/shell",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/shell/components",
+      "target": "module:src/domains/shell"
+    },
+    {
+      "id": "module_import:module:src/domains/project->module:src/domains/project/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project",
+      "target": "module:src/domains/project/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/shell->module:src/domains/shell/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/shell",
+      "target": "module:src/domains/shell/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/graph->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/components->module:src/domains/graph/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/components",
+      "target": "module:src/domains/graph/hooks"
+    },
+    {
+      "id": "module_import:module:src-tauri/src/domain/project->module:src-tauri/src/domain",
+      "kind": "ModuleImport",
+      "source": "module:src-tauri/src/domain/project",
+      "target": "module:src-tauri/src/domain"
+    },
+    {
+      "id": "module_import:module:src/domains/shell/components->module:src/domains/git",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/shell/components",
+      "target": "module:src/domains/git"
+    },
+    {
+      "id": "module_import:module:src/domains/git/hooks->module:src/domains/git",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git/hooks",
+      "target": "module:src/domains/git"
+    },
+    {
+      "id": "module_import:module:src-tauri/src/domain/git->module:src-tauri/src/domain",
+      "kind": "ModuleImport",
+      "source": "module:src-tauri/src/domain/git",
+      "target": "module:src-tauri/src/domain"
+    },
+    {
+      "id": "module_import:module:src/domains/git->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/project/components->module:src/domains/project/hooks",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project/components",
+      "target": "module:src/domains/project/hooks"
+    },
+    {
+      "id": "module_import:module:src/domains/git/components->module:src/shared/types",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git/components",
+      "target": "module:src/shared/types"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/domains/graph",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/domains/graph"
+    },
+    {
+      "id": "module_import:module:src/domains/git->module:src/domains/git/components",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/git",
+      "target": "module:src/domains/git/components"
+    },
+    {
+      "id": "module_import:module:src->module:src/domains/graph",
+      "kind": "ModuleImport",
+      "source": "module:src",
+      "target": "module:src/domains/graph"
+    },
+    {
+      "id": "module_import:module:src/domains/graph/hooks->module:src/domains/graph/utils",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph/hooks",
+      "target": "module:src/domains/graph/utils"
+    },
+    {
+      "id": "module_import:module:src/domains/graph->module:src/domains/graph/components",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/graph",
+      "target": "module:src/domains/graph/components"
+    },
+    {
+      "id": "module_import:module:src-tauri/src/domain/graph->module:src-tauri/src/domain",
+      "kind": "ModuleImport",
+      "source": "module:src-tauri/src/domain/graph",
+      "target": "module:src-tauri/src/domain"
+    },
+    {
+      "id": "module_import:module:src/domains/project/hooks->module:src/domains/shell",
+      "kind": "ModuleImport",
+      "source": "module:src/domains/project/hooks",
+      "target": "module:src/domains/shell"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "module:.",
+      "label": "viber",
+      "language": null,
+      "path": ".",
+      "type": "module"
+    },
+    {
+      "id": "module:src",
+      "label": "src",
+      "language": null,
+      "path": "src",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri",
+      "label": "src-tauri",
+      "language": null,
+      "path": "src-tauri",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src",
+      "label": "src",
+      "language": null,
+      "path": "src-tauri/src",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/bin",
+      "label": "bin",
+      "language": null,
+      "path": "src-tauri/src/bin",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/domain",
+      "label": "domain",
+      "language": null,
+      "path": "src-tauri/src/domain",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/domain/git",
+      "label": "git",
+      "language": null,
+      "path": "src-tauri/src/domain/git",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/domain/graph",
+      "label": "graph",
+      "language": null,
+      "path": "src-tauri/src/domain/graph",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/domain/project",
+      "label": "project",
+      "language": null,
+      "path": "src-tauri/src/domain/project",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/infra",
+      "label": "infra",
+      "language": null,
+      "path": "src-tauri/src/infra",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/infra/parser",
+      "label": "parser",
+      "language": null,
+      "path": "src-tauri/src/infra/parser",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/infra/watcher",
+      "label": "watcher",
+      "language": null,
+      "path": "src-tauri/src/infra/watcher",
+      "type": "module"
+    },
+    {
+      "id": "module:src-tauri/src/shared",
+      "label": "shared",
+      "language": null,
+      "path": "src-tauri/src/shared",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains",
+      "label": "domains",
+      "language": null,
+      "path": "src/domains",
+      "type": "group"
+    },
+    {
+      "id": "module:src/domains/git",
+      "label": "git",
+      "language": null,
+      "path": "src/domains/git",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/git/components",
+      "label": "components",
+      "language": null,
+      "path": "src/domains/git/components",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/git/hooks",
+      "label": "hooks",
+      "language": null,
+      "path": "src/domains/git/hooks",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph",
+      "label": "graph",
+      "language": null,
+      "path": "src/domains/graph",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph/components",
+      "label": "components",
+      "language": null,
+      "path": "src/domains/graph/components",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph/hooks",
+      "label": "hooks",
+      "language": null,
+      "path": "src/domains/graph/hooks",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph/mock",
+      "label": "mock",
+      "language": null,
+      "path": "src/domains/graph/mock",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph/styles",
+      "label": "styles",
+      "language": null,
+      "path": "src/domains/graph/styles",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/graph/utils",
+      "label": "utils",
+      "language": null,
+      "path": "src/domains/graph/utils",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/project",
+      "label": "project",
+      "language": null,
+      "path": "src/domains/project",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/project/components",
+      "label": "components",
+      "language": null,
+      "path": "src/domains/project/components",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/project/hooks",
+      "label": "hooks",
+      "language": null,
+      "path": "src/domains/project/hooks",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/shell",
+      "label": "shell",
+      "language": null,
+      "path": "src/domains/shell",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/shell/components",
+      "label": "components",
+      "language": null,
+      "path": "src/domains/shell/components",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/shell/hooks",
+      "label": "hooks",
+      "language": null,
+      "path": "src/domains/shell/hooks",
+      "type": "module"
+    },
+    {
+      "id": "module:src/domains/shell/styles",
+      "label": "styles",
+      "language": null,
+      "path": "src/domains/shell/styles",
+      "type": "module"
+    },
+    {
+      "id": "module:src/shared",
+      "label": "shared",
+      "language": null,
+      "path": "src/shared",
+      "type": "group"
+    },
+    {
+      "id": "module:src/shared/types",
+      "label": "types",
+      "language": null,
+      "path": "src/shared/types",
+      "type": "module"
+    },
+    {
+      "id": "module:src/types",
+      "label": "types",
+      "language": null,
+      "path": "src/types",
+      "type": "module"
+    },
+    {
+      "id": "file:src-tauri/build.rs",
+      "label": "build.rs",
+      "language": "rust",
+      "path": "src-tauri/build.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/watcher/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/watcher/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/dart.rs",
+      "label": "dart.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/dart.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/typescript.rs",
+      "label": "typescript.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/typescript.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/rust.rs",
+      "label": "rust.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/rust.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/go.rs",
+      "label": "go.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/go.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/python.rs",
+      "label": "python.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/python.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/parser/csharp.rs",
+      "label": "csharp.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/parser/csharp.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/infra/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/infra/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/bin/parse_project.rs",
+      "label": "parse_project.rs",
+      "language": "rust",
+      "path": "src-tauri/src/bin/parse_project.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/lib.rs",
+      "label": "lib.rs",
+      "language": "rust",
+      "path": "src-tauri/src/lib.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/shared/types.rs",
+      "label": "types.rs",
+      "language": "rust",
+      "path": "src-tauri/src/shared/types.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/shared/error.rs",
+      "label": "error.rs",
+      "language": "rust",
+      "path": "src-tauri/src/shared/error.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/shared/event.rs",
+      "label": "event.rs",
+      "language": "rust",
+      "path": "src-tauri/src/shared/event.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/shared/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/shared/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/main.rs",
+      "label": "main.rs",
+      "language": "rust",
+      "path": "src-tauri/src/main.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/graph/service.rs",
+      "label": "service.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/graph/service.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/graph/commands.rs",
+      "label": "commands.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/graph/commands.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/graph/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/graph/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/graph/diff.rs",
+      "label": "diff.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/graph/diff.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/graph/builder.rs",
+      "label": "builder.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/graph/builder.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/project/config.rs",
+      "label": "config.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/project/config.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/project/service.rs",
+      "label": "service.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/project/service.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/project/commands.rs",
+      "label": "commands.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/project/commands.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/project/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/project/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/git/service.rs",
+      "label": "service.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/git/service.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/git/commands.rs",
+      "label": "commands.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/git/commands.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:src-tauri/src/domain/git/mod.rs",
+      "label": "mod.rs",
+      "language": "rust",
+      "path": "src-tauri/src/domain/git/mod.rs",
+      "type": "file"
+    },
+    {
+      "id": "file:vite.config.ts",
+      "label": "vite.config.ts",
+      "language": "typescript",
+      "path": "vite.config.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/App.tsx",
+      "label": "App.tsx",
+      "language": "typescript",
+      "path": "src/App.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/main.tsx",
+      "label": "main.tsx",
+      "language": "typescript",
+      "path": "src/main.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/types/cytoscape-cose-bilkent.d.ts",
+      "label": "cytoscape-cose-bilkent.d.ts",
+      "language": "typescript",
+      "path": "src/types/cytoscape-cose-bilkent.d.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/styles/colors.ts",
+      "label": "colors.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/styles/colors.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/components/Toolbar.tsx",
+      "label": "Toolbar.tsx",
+      "language": "typescript",
+      "path": "src/domains/shell/components/Toolbar.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/components/StatusBar.tsx",
+      "label": "StatusBar.tsx",
+      "language": "typescript",
+      "path": "src/domains/shell/components/StatusBar.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/components/Layout.tsx",
+      "label": "Layout.tsx",
+      "language": "typescript",
+      "path": "src/domains/shell/components/Layout.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/components/Sidebar.tsx",
+      "label": "Sidebar.tsx",
+      "language": "typescript",
+      "path": "src/domains/shell/components/Sidebar.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/hooks/useTauriCommand.ts",
+      "label": "useTauriCommand.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/hooks/useTauriCommand.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/hooks/useUndoRedo.ts",
+      "label": "useUndoRedo.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/hooks/useUndoRedo.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/hooks/useTauriEvent.ts",
+      "label": "useTauriEvent.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/hooks/useTauriEvent.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/index.ts",
+      "label": "index.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/index.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/shell/store.ts",
+      "label": "store.ts",
+      "language": "typescript",
+      "path": "src/domains/shell/store.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/mock/graph.ts",
+      "label": "graph.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/mock/graph.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/utils/weight.ts",
+      "label": "weight.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/utils/weight.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/styles/graph-theme.ts",
+      "label": "graph-theme.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/styles/graph-theme.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/NodeDetail.tsx",
+      "label": "NodeDetail.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/NodeDetail.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/DepthToggle.tsx",
+      "label": "DepthToggle.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/DepthToggle.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/NodeTooltip.tsx",
+      "label": "NodeTooltip.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/NodeTooltip.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/EdgeDetail.tsx",
+      "label": "EdgeDetail.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/EdgeDetail.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/ExternalModeToggle.tsx",
+      "label": "ExternalModeToggle.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/ExternalModeToggle.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/UndoRedoButtons.tsx",
+      "label": "UndoRedoButtons.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/UndoRedoButtons.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/WeightPresetSelector.tsx",
+      "label": "WeightPresetSelector.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/WeightPresetSelector.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/GraphCanvas.tsx",
+      "label": "GraphCanvas.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/GraphCanvas.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/components/ViewModeToggle.tsx",
+      "label": "ViewModeToggle.tsx",
+      "language": "typescript",
+      "path": "src/domains/graph/components/ViewModeToggle.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/hooks/useCytoscape.ts",
+      "label": "useCytoscape.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/hooks/useCytoscape.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/hooks/useSymbols.ts",
+      "label": "useSymbols.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/hooks/useSymbols.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/hooks/useGraph.ts",
+      "label": "useGraph.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/hooks/useGraph.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/index.ts",
+      "label": "index.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/index.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/graph/store.ts",
+      "label": "store.ts",
+      "language": "typescript",
+      "path": "src/domains/graph/store.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/project/components/ProjectSelector.tsx",
+      "label": "ProjectSelector.tsx",
+      "language": "typescript",
+      "path": "src/domains/project/components/ProjectSelector.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/project/components/SettingsPanel.tsx",
+      "label": "SettingsPanel.tsx",
+      "language": "typescript",
+      "path": "src/domains/project/components/SettingsPanel.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/project/hooks/useProject.ts",
+      "label": "useProject.ts",
+      "language": "typescript",
+      "path": "src/domains/project/hooks/useProject.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/project/index.ts",
+      "label": "index.ts",
+      "language": "typescript",
+      "path": "src/domains/project/index.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/project/store.ts",
+      "label": "store.ts",
+      "language": "typescript",
+      "path": "src/domains/project/store.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/components/GitPanel.tsx",
+      "label": "GitPanel.tsx",
+      "language": "typescript",
+      "path": "src/domains/git/components/GitPanel.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/components/BranchSelect.tsx",
+      "label": "BranchSelect.tsx",
+      "language": "typescript",
+      "path": "src/domains/git/components/BranchSelect.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/components/FileStaging.tsx",
+      "label": "FileStaging.tsx",
+      "language": "typescript",
+      "path": "src/domains/git/components/FileStaging.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/components/CommitForm.tsx",
+      "label": "CommitForm.tsx",
+      "language": "typescript",
+      "path": "src/domains/git/components/CommitForm.tsx",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/hooks/useGit.ts",
+      "label": "useGit.ts",
+      "language": "typescript",
+      "path": "src/domains/git/hooks/useGit.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/index.ts",
+      "label": "index.ts",
+      "language": "typescript",
+      "path": "src/domains/git/index.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/domains/git/store.ts",
+      "label": "store.ts",
+      "language": "typescript",
+      "path": "src/domains/git/store.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/project.ts",
+      "label": "project.ts",
+      "language": "typescript",
+      "path": "src/shared/types/project.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/score.ts",
+      "label": "score.ts",
+      "language": "typescript",
+      "path": "src/shared/types/score.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/guardrail.ts",
+      "label": "guardrail.ts",
+      "language": "typescript",
+      "path": "src/shared/types/guardrail.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/watcher.ts",
+      "label": "watcher.ts",
+      "language": "typescript",
+      "path": "src/shared/types/watcher.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/symbol.ts",
+      "label": "symbol.ts",
+      "language": "typescript",
+      "path": "src/shared/types/symbol.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/graph.ts",
+      "label": "graph.ts",
+      "language": "typescript",
+      "path": "src/shared/types/graph.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/index.ts",
+      "label": "index.ts",
+      "language": "typescript",
+      "path": "src/shared/types/index.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/shared/types/git.ts",
+      "label": "git.ts",
+      "language": "typescript",
+      "path": "src/shared/types/git.ts",
+      "type": "file"
+    },
+    {
+      "id": "file:src/vite-env.d.ts",
+      "label": "vite-env.d.ts",
+      "language": "typescript",
+      "path": "src/vite-env.d.ts",
+      "type": "file"
+    }
+  ]
+}

@@ -458,7 +458,9 @@ fn resolve_import(
             resolve_ts_import(import_source, module_map, importer_path)
         }
         Language::Rust => resolve_rust_import(import_source, module_map, importer_path),
-        _ => None,
+        Language::CSharp => resolve_csharp_import(import_source, module_map, importer_path),
+        Language::Dart => resolve_dart_import(import_source, module_map, importer_path),
+        Language::Go => resolve_go_import(import_source, module_map, importer_path),
     }
 }
 
@@ -705,4 +707,201 @@ fn parse_pyproject_dependencies(content: &str) -> Vec<String> {
     }
 
     packages
+}
+
+// ─── C# Import Resolution ───
+
+/// Resolve C# using directive to file node.
+/// using MyProject.Services → MyProject/Services/*.cs
+fn resolve_csharp_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    importer_path: &Path,
+) -> Option<String> {
+    // C# namespaces map to directory structure
+    // MyProject.Services → MyProject/Services/
+    let path_form = import_source.replace('.', "/");
+
+    // Try to find any file in that namespace directory
+    let candidates = generate_csharp_candidates(&path_form);
+
+    // Also check relative to importer's project root
+    let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
+
+    for candidate in &candidates {
+        // Direct match
+        if let Some(id) = module_map.get(candidate) {
+            return Some(id.clone());
+        }
+
+        // Try relative to importer's directory (same project)
+        let relative = normalize_path(&importer_dir.join(candidate));
+        let relative_str = relative.to_string_lossy().replace('\\', "/");
+        if let Some(id) = module_map.get(&relative_str) {
+            return Some(id.clone());
+        }
+
+        // Try from project root (walk up to find .csproj or similar)
+        if let Some(id) = try_from_project_root(candidate, importer_path, module_map) {
+            return Some(id.clone());
+        }
+    }
+
+    None
+}
+
+fn generate_csharp_candidates(namespace_path: &str) -> Vec<String> {
+    let mut candidates = Vec::new();
+
+    // Directory itself
+    candidates.push(namespace_path.to_string());
+
+    // Common file patterns in that directory
+    // We can't know exact file names, so try to match partial paths
+    // The module_map should have registered paths like "Services/UserService.cs"
+    // So we check if any key starts with the namespace path
+
+    candidates
+}
+
+fn try_from_project_root(
+    candidate: &str,
+    importer_path: &Path,
+    module_map: &HashMap<String, String>,
+) -> Option<String> {
+    // Walk up from importer to find project root (where .csproj exists)
+    let mut current = importer_path;
+    while let Some(parent) = current.parent() {
+        // Check for .csproj file
+        if std::fs::read_dir(parent)
+            .ok()?
+            .filter_map(|e| e.ok())
+            .any(|e| e.path().extension().map(|ext| ext == "csproj").unwrap_or(false))
+        {
+            // Found project root, try candidate from here
+            let full_path = normalize_path(&parent.join(candidate));
+            let full_str = full_path.to_string_lossy().replace('\\', "/");
+
+            // Check for prefix match in module_map (any file in this namespace)
+            for (key, id) in module_map {
+                if key.starts_with(&full_str) || key.starts_with(&format!("{}/", full_str)) {
+                    return Some(id.clone());
+                }
+            }
+            break;
+        }
+        current = parent;
+    }
+    None
+}
+
+// ─── Dart Import Resolution ───
+
+/// Resolve Dart import to file node.
+/// import 'src/models/user.dart' → relative path
+/// import 'package:my_app/src/models/user.dart' → lib/src/models/user.dart
+fn resolve_dart_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    importer_path: &Path,
+) -> Option<String> {
+    let path_str = if import_source.starts_with("package:") {
+        // package:my_app/src/models/user.dart → lib/src/models/user.dart
+        // Remove "package:" prefix
+        let rest = import_source.strip_prefix("package:")?;
+        // Split on first '/' to get package name and path
+        let (package_name, path) = rest.split_once('/')?;
+        // The path is relative to lib/ directory
+        format!("lib/{}", path)
+    } else if import_source.starts_with("dart:") {
+        // dart:core, dart:async → SDK, skip
+        return None;
+    } else {
+        // Relative import: 'src/models/user.dart' or '../services/api.dart'
+        import_source.to_string()
+    };
+
+    // Resolve relative path
+    let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
+    let resolved = normalize_path(&importer_dir.join(&path_str));
+    let resolved_str = resolved.to_string_lossy().replace('\\', "/");
+
+    // Try with and without extension
+    let candidates = if path_str.ends_with(".dart") {
+        vec![resolved_str]
+    } else {
+        vec![resolved_str.clone(), format!("{}.dart", resolved_str)]
+    };
+
+    for candidate in &candidates {
+        if let Some(id) = module_map.get(candidate) {
+            return Some(id.clone());
+        }
+    }
+
+    // Also try direct path match (for package imports that might be registered)
+    if let Some(id) = module_map.get(&path_str) {
+        return Some(id.clone());
+    }
+
+    None
+}
+
+// ─── Go Import Resolution ───
+
+/// Resolve Go import to file node.
+/// import "github.com/user/project/internal/utils" → internal/utils/*.go
+fn resolve_go_import(
+    import_source: &str,
+    module_map: &HashMap<String, String>,
+    importer_path: &Path,
+) -> Option<String> {
+    // External packages (contain domain) are skipped
+    // Only resolve internal packages
+    // We need to know the module name from go.mod
+
+    // Try to find go.mod and extract module name
+    let module_name = find_go_module(importer_path)?;
+
+    // Check if this is an internal package
+    if !import_source.starts_with(&module_name) {
+        return None; // External package
+    }
+
+    // Strip module name prefix to get relative path
+    let relative = import_source.strip_prefix(&module_name)?;
+    let relative = relative.trim_start_matches('/');
+
+    // Try to find any file in this package directory
+    for (key, id) in module_map {
+        // key is like "internal/utils/helper.go"
+        if key.starts_with(relative) || key.starts_with(&format!("{}/", relative)) {
+            return Some(id.clone());
+        }
+    }
+
+    // Also try direct match
+    if let Some(id) = module_map.get(relative) {
+        return Some(id.clone());
+    }
+
+    None
+}
+
+/// Find Go module name from go.mod
+fn find_go_module(importer_path: &Path) -> Option<String> {
+    let mut current = importer_path;
+    loop {
+        let go_mod = current.join("go.mod");
+        if let Ok(content) = std::fs::read_to_string(&go_mod) {
+            // Find module declaration
+            for line in content.lines() {
+                let trimmed = line.trim();
+                if let Some(rest) = trimmed.strip_prefix("module ") {
+                    return Some(rest.trim().to_string());
+                }
+            }
+        }
+        current = current.parent()?;
+    }
 }

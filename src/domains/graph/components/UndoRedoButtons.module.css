@@ -1,4 +1,4 @@
-.toggle {
+.container {
   display: inline-flex;
   gap: 8px;
   background: #1a1a2e;
@@ -14,14 +14,22 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.button:hover {
+.button:hover:not(:disabled) {
   border-color: rgba(233,69,96,0.4);
 }
 
-.button.active {
-  background: linear-gradient(180deg, rgba(233,69,96,0.12), rgba(233,69,96,0.06));
-  border-color: #e94560;
-  color: #e94560;
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
+
+.icon {
+  font-size: 12px;
+}
+

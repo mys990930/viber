@@ -1,6 +1,7 @@
 import { Layout, Sidebar, SidebarSection } from './domains/shell';
 import { ProjectSelector, SettingsPanel } from './domains/project';
 import { GraphCanvas } from './domains/graph';
+import { GitPanel } from './domains/git';
 
 function App() {
   return (
@@ -13,6 +14,11 @@ function App() {
           <SidebarSection title="Settings" defaultOpen={true}>
             <SettingsPanel />
           </SidebarSection>
+          <div style={{ marginTop: 'auto' }}>
+            <SidebarSection title="Git" defaultOpen={true}>
+              <GitPanel />
+            </SidebarSection>
+          </div>
         </Sidebar>
       }
       canvas={<GraphCanvas />}

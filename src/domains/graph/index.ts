@@ -8,6 +8,7 @@ export { DepthToggle } from './components/DepthToggle';
 export { ViewModeToggle } from './components/ViewModeToggle';
 export { WeightPresetSelector } from './components/WeightPresetSelector';
 export { ExternalModeToggle } from './components/ExternalModeToggle';
+export { UndoRedoButtons } from './components/UndoRedoButtons';
 export { NodeTooltip } from './components/NodeTooltip';
 export { NodeDetail } from './components/NodeDetail';
 export { EdgeDetail } from './components/EdgeDetail';

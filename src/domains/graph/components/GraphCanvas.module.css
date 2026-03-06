@@ -37,6 +37,52 @@
   right: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   z-index: 10;
+}
+
+.historyRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.controlBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.controlLabel {
+  font-size: 11px;
+  color: #9aa0b5;
+  letter-spacing: 0.02em;
+  padding-left: 2px;
+}
+
+
+.resetContainer {
+  display: inline-flex;
+  gap: 8px;
+  background: #1a1a2e;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.resetIconButton {
+  background: transparent;
+  color: #e0e0e0;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.resetIconButton:hover {
+  border-color: rgba(233,69,96,0.4);
 }

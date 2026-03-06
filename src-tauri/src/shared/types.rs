@@ -137,6 +137,21 @@ pub struct GitStatus {
     pub untracked: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitResult {
+    pub hash: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitRequest {
+    pub message: Option<String>,
+    pub paths: Option<Vec<String>>,
+    pub push: Option<bool>,
+}
+
 // ─── Guardrail ───
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
