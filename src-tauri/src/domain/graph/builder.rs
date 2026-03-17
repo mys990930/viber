@@ -261,6 +261,9 @@ pub fn build_graph_with_config(
                         // Also register as path form: MyProject/Services
                         let path_form = namespace.replace('.', "/");
                         module_name_to_file_id.insert(path_form, id.clone());
+                        
+                        // Debug: log registered namespaces
+                        eprintln!("[DEBUG] Registered namespace '{}' for file {:?}", namespace, relative);
                     }
                 }
             }
@@ -290,9 +293,21 @@ pub fn build_graph_with_config(
 
         if let Some(parser) = parser_registry.get(*language) {
             let imports = parser.parse_imports(&source_content);
+            
+            // Debug: log imports for C# files
+            if *language == Language::CSharp && !imports.is_empty() {
+                eprintln!("[DEBUG] C# file {:?} has {} imports", relative, imports.len());
+            }
+            
             for import in imports {
                 // Try to resolve import to a file node
                 let target_id = resolve_import(&import.source, &module_name_to_file_id, relative, *language);
+                
+                // Debug: log resolution attempts for C#
+                if *language == Language::CSharp && !import.is_external {
+                    eprintln!("[DEBUG]   import '{}' -> resolved: {:?}", import.source, target_id);
+                }
+                
                 if let Some(target_id) = target_id {
                     if target_id == source_id { continue; } // skip self-imports
 
