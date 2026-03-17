@@ -3,6 +3,36 @@ use crate::shared::types::{CallInfo, ImportInfo, Language, Symbol, SymbolKind};
 
 pub struct CSharpParser;
 
+impl CSharpParser {
+    /// Extract namespace declaration from C# source.
+    /// Returns None if no namespace found.
+    pub fn parse_namespace(source: &str) -> Option<String> {
+        for line in source.lines() {
+            let trimmed = line.trim();
+            
+            // namespace MyProject.Services
+            if let Some(rest) = trimmed.strip_prefix("namespace ") {
+                let namespace = rest.trim_end_matches('{').trim();
+                if !namespace.is_empty() {
+                    return Some(namespace.to_string());
+                }
+            }
+            
+            // Stop at first type declaration (namespace must come before)
+            let stripped = strip_csharp_modifiers(trimmed);
+            if stripped.starts_with("class ")
+                || stripped.starts_with("interface ")
+                || stripped.starts_with("struct ")
+                || stripped.starts_with("enum ")
+                || stripped.starts_with("record ")
+            {
+                break;
+            }
+        }
+        None
+    }
+}
+
 impl LanguageParser for CSharpParser {
     fn language(&self) -> Language {
         Language::CSharp

@@ -202,7 +202,7 @@ pub fn build_graph_with_config(
     let mut file_node_ids: HashSet<String> = HashSet::new();
     let mut module_name_to_file_id: HashMap<String, String> = HashMap::new();
 
-    for (_, relative, language) in &parseable_files {
+    for (absolute, relative, language) in &parseable_files {
         let id = format!("file:{}", relative.display());
         let label = relative
             .file_name()
@@ -242,6 +242,26 @@ pub fn build_graph_with_config(
             Language::Python => {
                 for name in python_module_names(relative) {
                     module_name_to_file_id.insert(name, id.clone());
+                }
+            }
+            Language::CSharp => {
+                // C# uses namespace-based imports
+                // Register both file path and namespace
+                let path_str = relative.to_string_lossy().replace('\\', "/");
+                module_name_to_file_id.insert(path_str.clone(), id.clone());
+                if let Some(without_ext) = path_str.rsplit_once('.') {
+                    module_name_to_file_id.insert(without_ext.0.to_string(), id.clone());
+                }
+                
+                // Also register the namespace from file content
+                if let Ok(content) = std::fs::read_to_string(absolute) {
+                    if let Some(namespace) = crate::infra::parser::CSharpParser::parse_namespace(&content) {
+                        // namespace MyProject.Services → MyProject.Services
+                        module_name_to_file_id.insert(namespace.clone(), id.clone());
+                        // Also register as path form: MyProject/Services
+                        let path_form = namespace.replace('.', "/");
+                        module_name_to_file_id.insert(path_form, id.clone());
+                    }
                 }
             }
             _ => {
@@ -718,12 +738,18 @@ fn resolve_csharp_import(
     module_map: &HashMap<String, String>,
     importer_path: &Path,
 ) -> Option<String> {
+    // First, try direct namespace match
+    // module_map has: "MyProject.Services" → file_id
+    if let Some(id) = module_map.get(import_source) {
+        return Some(id.clone());
+    }
+
     // C# namespaces map to directory structure
     // MyProject.Services → MyProject/Services/
     let path_form = import_source.replace('.', "/");
 
     // Try to find any file in that namespace directory
-    let candidates = generate_csharp_candidates(&path_form);
+    let candidates = generate_csharp_candidates(import_source, &path_form);
 
     // Also check relative to importer's project root
     let importer_dir = importer_path.parent().unwrap_or(Path::new(""));
@@ -750,16 +776,17 @@ fn resolve_csharp_import(
     None
 }
 
-fn generate_csharp_candidates(namespace_path: &str) -> Vec<String> {
+fn generate_csharp_candidates(namespace: &str, namespace_path: &str) -> Vec<String> {
     let mut candidates = Vec::new();
 
-    // Directory itself
+    // Direct namespace match
+    candidates.push(namespace.to_string());
+
+    // Directory path form
     candidates.push(namespace_path.to_string());
 
-    // Common file patterns in that directory
-    // We can't know exact file names, so try to match partial paths
-    // The module_map should have registered paths like "Services/UserService.cs"
-    // So we check if any key starts with the namespace path
+    // Also try partial matches for files in the namespace
+    // e.g., namespace "MyProject.Services" should match "Services/UserService.cs"
 
     candidates
 }
